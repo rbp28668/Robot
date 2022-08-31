@@ -1,0 +1,92 @@
+MPLINK 4.20, Linker
+Linker Map File - Created Tue Jun 01 19:57:07 2010
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                  STARTUP       code   0x000000    program   0x000004
+                     PROG       code   0x000005    program   0x0000a4
+                   .cinit    romdata   0x000057    program   0x000004
+                    .code       code   0x000059    program   0x00011a
+                  .config       code   0x002007    program   0x000002
+                   .udata      udata   0x0000a0       data   0x000004
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000001      
+                            0x000005    0x0000e5      
+                            0x002007    0x002007      
+            228 out of 1160 program addresses used, program memory utilization is 19%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+               DoI2CWrite   0x0000dc    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   I2CErr   0x0000d3    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  RdLines   0x000043    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                  ReadI2C   0x0000e2    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                     S2wr   0x0000a7    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   SMBERR   0x000037    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+               SMBHandler   0x00007a    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  SMBInit   0x000059    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  SMBPoll   0x00003e    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                    SMBR1   0x000029    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                    SMBR2   0x00002f    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                   SMBRET   0x000038    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                 SMBRdEnd   0x00003d    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                  SMBRead   0x000021    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                 SMBWrite   0x000039    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+              SSP_Handler   0x000083    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  Startup   0x000005    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                   State1   0x00008a    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State2   0x000096    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State3   0x0000af    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State4   0x0000bd    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State5   0x0000ca    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                 WriteI2C   0x0000d6    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+              _.code_007B   0x0000d4    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  smbaddr   0x0000a2       data     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbidx   0x0000a1       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbtmp   0x0000a3       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   sticky   0x0000a0       data     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  Startup   0x000005    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                  SMBRead   0x000021    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                    SMBR1   0x000029    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                    SMBR2   0x00002f    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                   SMBERR   0x000037    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                   SMBRET   0x000038    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                 SMBWrite   0x000039    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                 SMBRdEnd   0x00003d    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                  SMBPoll   0x00003e    program     extern G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                  RdLines   0x000043    program     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                  SMBInit   0x000059    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+               SMBHandler   0x00007a    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+              SSP_Handler   0x000083    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State1   0x00008a    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State2   0x000096    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                     S2wr   0x0000a7    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State3   0x0000af    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State4   0x0000bd    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State5   0x0000ca    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   I2CErr   0x0000d3    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+              _.code_007B   0x0000d4    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                 WriteI2C   0x0000d6    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+               DoI2CWrite   0x0000dc    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  ReadI2C   0x0000e2    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   sticky   0x0000a0       data     static G:\Projects\Robot\PIC\Collision-Detect\collision-detect.asm
+                   smbidx   0x0000a1       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  smbaddr   0x0000a2       data     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbtmp   0x0000a3       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+
+

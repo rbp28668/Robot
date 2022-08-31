@@ -1,0 +1,90 @@
+MPLINK 4.20, Linker
+Linker Map File - Created Tue Jun 01 19:50:31 2010
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                  STARTUP       code   0x000000    program   0x000004
+                     PROG       code   0x000005    program   0x00003a
+                   .cinit    romdata   0x000022    program   0x000004
+                    .code       code   0x000024    program   0x00011a
+                  .config       code   0x002007    program   0x000002
+                   .udata      udata   0x0000a0       data   0x000006
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000001      
+                            0x000005    0x0000b0      
+                            0x002007    0x002007      
+            175 out of 1160 program addresses used, program memory utilization is 15%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+               DoI2CWrite   0x0000a7    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   I2CErr   0x00009e    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                     Main   0x000008    program     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  ReadI2C   0x0000ad    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                     S2wr   0x000072    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+               SMBHandler   0x000045    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  SMBInit   0x000024    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  SMBPoll   0x000021    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                 SMBRdEnd   0x000020    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  SMBRead   0x000019    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                 SMBWrite   0x00001b    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+              SSP_Handler   0x00004e    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                    Setup   0x000009    program     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  Startup   0x000005    program     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                   State1   0x000055    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State2   0x000061    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State3   0x00007a    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State4   0x000088    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State5   0x000095    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                 WriteI2C   0x0000a1    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+              _.code_007B   0x00009f    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                      cmd   0x0000a5       data     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                    reshi   0x0000a4       data     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                    reslo   0x0000a3       data     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  smbaddr   0x0000a1       data     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbidx   0x0000a0       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbtmp   0x0000a2       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  Startup   0x000005    program     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                     Main   0x000008    program     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                    Setup   0x000009    program     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  SMBRead   0x000019    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                 SMBWrite   0x00001b    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                 SMBRdEnd   0x000020    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  SMBPoll   0x000021    program     extern G:\Projects\Robot\PIC\I2C\smbtest.asm
+                  SMBInit   0x000024    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+               SMBHandler   0x000045    program     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+              SSP_Handler   0x00004e    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State1   0x000055    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State2   0x000061    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                     S2wr   0x000072    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State3   0x00007a    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State4   0x000088    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   State5   0x000095    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   I2CErr   0x00009e    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+              _.code_007B   0x00009f    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                 WriteI2C   0x0000a1    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+               DoI2CWrite   0x0000a7    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  ReadI2C   0x0000ad    program     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbidx   0x0000a0       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                  smbaddr   0x0000a1       data     extern G:\Projects\Robot\PIC\I2C\smbslave.asm
+                   smbtmp   0x0000a2       data     static G:\Projects\Robot\PIC\I2C\smbslave.asm
+                    reslo   0x0000a3       data     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                    reshi   0x0000a4       data     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+                      cmd   0x0000a5       data     static G:\Projects\Robot\PIC\I2C\smbtest.asm
+
+

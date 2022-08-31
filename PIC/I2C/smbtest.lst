@@ -1,0 +1,468 @@
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;---------------------------------------------------------------------
+                      00002 ; File: smbtest.asm
+                      00003 ; Test i2c/smbus slave functionality
+                      00004 ;--------------------------------------------------------------------
+                      00005 ;
+                      00006 ;
+                      00007 ;---------------------------------------------------------------------
+                      00008 ;---------------------------------------------------------------------
+                      00009 ; Include Files
+                      00010 ;---------------------------------------------------------------------
+                      00011                         LIST   P=PIC16F818
+                      00012                         #include P16F818.INC
+                      00001         LIST
+                      00002 ; P16F818.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+                      00316         LIST
+                      00013                         #include smb.inc
+                      00001 ;---------------------------------------------------------------------
+                      00002 ; File: smb.inc
+                      00003 ; Definitions for external SMB functions and callbacks.
+                      00004 ; Define _SMBSLAVE when including in smbslave.asm
+                      00005 ;--------------------------------------------------------------------
+                      00006 
+                      00007 ;---------------------------------------------------------------------
+                      00008 ; Callbacks implemented by calling program
+                      00009 ;---------------------------------------------------------------------
+                      00010 
+                      00011 #ifdef _SMBSLAVE
+                      00012     ; Called with byte written to device in W.  Current address in smbaddr.
+                      00013     extern SMBWrite
+                      00014 
+                      00015     ; Called to get byte from current SMB address (in smbaddr) and return 
+                      00016     ; it in W
+                      00017     extern SMBRead
+                      00018 
+                      00019     ; Called once a read from a slave is complete (master has
+                      00020     ; asserted NACK at the end of the read).
+                      00021     extern SMBRdEnd
+                      00022 
+                      00023         ; Called in polling loop
+                      00024         extern SMBPoll
+                      00025 
+                      00026 #else
+                      00027     ; Called with byte written to device in W.  Current address in smbaddr.
+  0000                00028     global SMBWrite
+                      00029 
+                      00030     ; Called to get byte from current SMB address (in smbaddr) and return 
+                      00031     ; it in W
+  0000                00032     global SMBRead
+                      00033 
+                      00034     ; Called once a read from a slave is complete (master has
+                      00035     ; asserted NACK at the end of the read).
+  0000                00036     global SMBRdEnd
+                      00037 
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00038         ; Called in polling loop
+  0000                00039         global SMBPoll
+                      00040 
+                      00041 #endif
+                      00042 
+                      00043 
+                      00044 ;---------------------------------------------------------------------
+                      00045 ; Entry points (and variable) for SMB slave code.
+                      00046 ;---------------------------------------------------------------------
+                      00047 
+                      00048 #ifdef _SMBSLAVE
+                      00049 
+                      00050     ; Call with left shifted slave address in W
+                      00051         global SMBInit
+                      00052 
+                      00053     ; Goto to handle input
+                      00054         global SMBHandler
+                      00055 
+                      00056     ; Current SMB (i.e. on device) address.
+                      00057         global smbaddr
+                      00058 
+                      00059 #else     
+                      00060     ; Call with left shifted slave address in W
+  0000                00061         extern SMBInit
+                      00062 
+                      00063     ; Goto to handle input
+  0000                00064         extern SMBHandler
+                      00065 
+                      00066     ; Current SMB (i.e. on device) address.
+  0000                00067         extern smbaddr
+                      00068 
+                      00069 
+                      00070 
+                      00071 #endif
+                      00072 
+                      00014 
+                      00015 ; Config - brownout on, code protect off, no code protect, no WDT, no LVP and internal clock.
+2007   3F70           00016                         __CONFIG        _BODEN_ON & _CP_OFF &  _PWRTE_ON & _WDT_OFF & _LVP_OFF & _INTRC_
+                            IO
+                      00017 
+                      00018 ;---------------------------------------------------------------------
+                      00019 ;Constant Definitions
+                      00020 ;---------------------------------------------------------------------
+                      00021 #define NODE_ADDR (0x60 << 1) ; I2C address of this node - 0x60 as 7 bit.
+                      00022 
+                      00023 ;---------------------------------------------------------------------
+                      00024 ; Variables
+                      00025 ;---------------------------------------------------------------------
+                      00026         udata
+0000                  00027 reslo res 1     ; low byte of result
+0001                  00028 reshi res 1 ; high byte of result
+0002                  00029 cmd res 1 ; command register
+                      00030 
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00031 
+                      00032 ; SMB registers as follows:
+                      00033 ;-------------------------------------------------------------------+
+                      00034 ; Addr  |                       Read                            |               Write                   
+                                    |               
+                      00035 ;-------+-------------------------------+---------------------------+
+                      00036 ; 0             |       Software version                        |       Command Byte                    
+                            |
+                      00037 ;-------+-------------------------------+---------------------------+
+                      00038 ; 1             |       Low byte of result                      |       NOP                             
+                                            |
+                      00039 ;-------+-------------------------------+---------------------------+
+                      00040 ; 2             |       High byte of result                     |       NOP                             
+                                            |
+                      00041 ;-------+-------------------------------+---------------------------+
+                      00042 
+                      00043 ;---------------------------------------------------------------------
+                      00044 
+                      00045 ;---------------------------------------------------------------------
+                      00046 ; Vectors
+                      00047 ;---------------------------------------------------------------------
+                      00048 STARTUP code
+0000   0000           00049         nop
+0001   2???           00050         goto Startup ;
+                      00051 
+                      00052 PROG code
+                      00053 
+                      00054 ;---------------------------------------------------------------------
+                      00055 ; Main Code
+                      00056 ;---------------------------------------------------------------------
+0000                  00057 Startup
+0000   1283           00058         bcf STATUS,RP0
+0001   1303           00059         bcf STATUS,RP1
+                      00060         
+0002   2???           00061         call Setup
+                      00062 
+0003                  00063 Main 
+0003   2???           00064         goto SMBHandler
+                      00065 
+                      00066 ;---------------------------------------------------------------------
+                      00067 ; Setup
+                      00068 ; Initializes program variables and peripheral registers.
+                      00069 ;---------------------------------------------------------------------
+0004                  00070 Setup
+                      00071     ;Set reset flags
+0004   1683 1303      00072         banksel PCON
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0006   148E           00073         bsf PCON,NOT_POR
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0007   140E           00074         bsf PCON,NOT_BOR
+                      00075     
+                      00076         ;Set oscillator to 8MHz
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0008   170F           00077     bsf OSCCON, IRCF2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0009   168F           00078     bsf OSCCON, IRCF1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000A   160F           00079     bsf OSCCON, IRCF0
+                      00080 
+                      00081     ; Disable interrupts.
+000B   1283 1303      00082     banksel PIR1
+000D   018C           00083         clrf PIR1               ; Clear all peripheral interrupt flags.
+000E   130B           00084         bcf INTCON,PEIE ; Diable all peripheral interrupts
+000F   138B           00085         bcf INTCON,GIE  ; Disable global interrupts
+                      00086 
+                      00087         ; Set all port B outputs high (leds off) (DEBUG)
+0010   30FF           00088         movlw 0xff
+0011   0086           00089         movwf PORTB
+                      00090 
+                      00091         ; Init I2C passing slave address
+0012   30C0           00092         movlw NODE_ADDR
+0013   2???           00093         goto SMBInit
+                      00094 
+                      00095 ;---------------------------------------------------------------------
+                      00096 ; SMBRead - reads the byte with address in smbaddr
+                      00097 ;---------------------------------------------------------------------
+0014                  00098 SMBRead
+0014   08??           00099     movfw smbaddr ; debug - just return the address.
+0015   0008           00100     return
+                      00101         
+                      00102 ;---------------------------------------------------------------------
+                      00103 ; SMBWrite - writes the byte in W to address in smbaddr
+                      00104 ;---------------------------------------------------------------------
+0016                  00105 SMBWrite
+0016   3AFF           00106         xorlw 0xff
+0017   1283 1303      00107     banksel PORTB
+0019   0086           00108         movwf PORTB
+001A   0008           00109         return
+                      00110 
+                      00111 ;---------------------------------------------------------------------
+                      00112 ; SMBRdEnd - signals the end of a read from the PIC
+                      00113 ;---------------------------------------------------------------------
+001B                  00114 SMBRdEnd
+001B   0008           00115     return
+                      00116 
+                      00117 ;---------------------------------------------------------------------
+                      00118 ; SMBPoll - called from i2c polling loop.
+                      00119 ;---------------------------------------------------------------------
+001C                  00120 SMBPoll
+001C   0008           00121         return
+                      00122 
+                      00123         end ; of file.
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADCS2                             00000006
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BF                                00000000
+C                                 00000000
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CKE                               00000006
+CKP                               00000004
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FREE                              00000004
+FSR                               00000004
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+INDF                              00000000
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IOFS                              00000002
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRP                               00000007
+Main                              00000003
+NODE_ADDR                         (0x60 << 1)
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OPTION_REG                        00000081
+OSCCON                            0000008F
+OSCTUNE                           00000090
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+R                                 00000002
+RBIE                              00000003
+RBIF                              00000000
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+R_W                               00000002
+S                                 00000003
+SMBHandler                        00000000
+SMBInit                           00000000
+SMBPoll                           0000001C
+SMBRdEnd                          0000001B
+SMBRead                           00000014
+SMBWrite                          00000016
+SMP                               00000007
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+Setup                             00000004
+Startup                           00000000
+T0CS                              00000005
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+MPASM  5.20                       SMBTEST.ASM   6-1-2010  19:50:30         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+UA                                00000001
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_CCP1_RB2                         00003FFF
+_CCP1_RB3                         00002FFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00001FFF
+_CP_OFF                           00003FFF
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+_EXTCLK                           00003FEF
+_EXTRC_CLKOUT                     00003FFF
+_EXTRC_IO                         00003FFE
+_HS_OSC                           00003FEE
+_INTRC_CLKOUT                     00003FFD
+_INTRC_IO                         00003FFC
+_LP_OSC                           00003FEC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_MCLR_OFF                         00003FDF
+_MCLR_ON                          00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WRT_ENABLE_1024                  00003BFF
+_WRT_ENABLE_512                   00003DFF
+_WRT_ENABLE_OFF                   00003FFF
+_XT_OSC                           00003FED
+__16F818                          00000001
+cmd                               00000002
+reshi                             00000001
+reslo                             00000000
+smbaddr                           00000000
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     5 reported,     0 suppressed
+
+

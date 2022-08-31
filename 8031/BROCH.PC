@@ -1,0 +1,601 @@
+                                           Development Tools
+
+                          Products for Microprocessor Development including:
+
+                                      PseudoSam Cross-assemblers
+                                           as low as $50.00
+                                      PseudoMax Cross-simulators
+                                           as low as $100.00
+                                     PseudoSid Cross-disassemblers
+                                           as low as $100.00
+                            PseudoPack Developer's Package ($50.00 Savings)
+                                    all three for as low as $200.00
+
+
+POWERFUL
+
+PseudoCorp has developed an extensive line of PC based professional cross-development tools.  Tools
+that speed development of microprocessor based products.  Fast, sophisticated macro assemblers to
+generate your program code.  Versatile simulators that allow testing and debugging of the program
+even before the hardware exists.  Easy to use disassemblers to help you recover lost source programs.
+
+
+AFFORDABLE
+
+Until now, powerful tools like these have been priced from 5 to 10 times PseudoCorp's price. Putting
+these time saving tools out of reach of all but large corporate engineering departments.
+
+
+PseudoSam Cross-assemblers                     Suggested list price starting at $50.00
+
+        See enclosed product data sheet for a description of these inexpensive yet fast and versatile
+assemblers.
+
+PseudoMax Cross-simulators                     Suggested list price starting at $100
+
+        See enclosed product data sheet for an example of our unique machine windows that let you
+see the operation of the microprocessor at work.
+
+PseudoSid Cross-disassemblers                  Suggested list price starting at $100
+
+        See enclosed product data sheet to see how our easy to use disassemblers let you create a
+complete assembler source program from an object module (ROM), including comments!
+
+
+Developer's Package                            Suggested List Price starting at $200
+                                               Save $50.00 off the regular separate price.
+
+        Each pack contains a PseudoSam assembler, a PseudoMax simulator, and a PseudoSid
+        disassembler for a specific processor. Requires 512k IBM mono, cga, ega, Hercules mono
+        display or compatible and MS-DOS 2.1 or greater.
+
+                                                (over)
+Technical Support
+
+We believe (we hear this from our customers also) that our products are easy to use, very powerful,
+and efficient, making them a pleasure to use.  Nevertheless, should you have any questions, problems,
+or suggestions, give us a call.  Our technical staff is available between 8:00 a.m. and 5:00 p.m. ET.
+
+BROAD RANGE OF SUPPORT
+
+PseudoCorp currently has products for the following microprocessor families (with more in
+development):
+
+Intel 8048 family
+RCA 1802, and 1805 families
+Intel, AMD, Signetics, Siemens... 8051 based microcontrollers
+Intel 8096, 8098, and 80c196 families
+Motorola 6800, 6802, and 6808 families
+Motorola 6801, and 6803 families
+Motorola 68hc11 family
+Motorola 6805 family
+Hitachi 6301, and 6303 families
+Motorola 6809 family
+MOS Technology 6502 family
+WDC 65C02 family
+Rockwell 65C02 family
+Intel 8080, and 8085 families
+Zilog Z80,and NSC 800 families
+Hitachi and Zilog HD64180 family
+Motorola 68000, 68008, 68010 families
+
+Each processor family will generally contain several variations, all of which have common object
+code. i.e. the Intel 8051 family consists of the 8051,52,53, the 8031, 8751, etc., all having the same
+instruction set and thus being supported by the same PseudoCorp product.
+
+Method of Shipment:
+
+We ship UPS 2nd day air whenever possible within the United States.  We ship air parcel post to
+Canada and Overseas.  Overnight shipping is available at an additional charge.
+
+How To Order:
+
+We accept VISA and MasterCard.  You may also choose to pre-pay by using the order form enclosed
+or have us ship your order COD.  Purchase orders will be accepted from companies and educational
+institutions only.  Non-US orders must be either paid in US funds drawn on an US Bank, or credit
+card.
+
+If you choose to purchase by PO, credit card or COD, call us or fax the completed (and signed) order
+form before 2:00 p.m. and your order will be shipped the same day.
+
+
+
+        PseudoCorp
+        Professional Development Products Group
+        716 Thimble Shoals Blvd, Suite E
+        Newport News, VA 23606
+        USA
+
+Call (804) 873-1947             FAX Number : (804) 873-2154                          PseudoSam Cross-Assemblers
+
+
+Suggested list price as low as $50.00
+
+PseudoCorp produces an extensive line of cross-assemblers. Fast, sophisticated macro assemblers to
+translate your source program into machine code.
+
+Extensive arithmetic and logical operations
+
+Logical bitwise not
+Logical bitwise or
+Logical bitwise exclusive or
+Addition
+Subtraction
+Multiplication
+Division
+Logical bitwise and
+Logical shift right
+Logical shift left
+Negation(2's complement)
+Unlimited levels of parentheses
+
+Plus very powerful Macro substitution capability including:
+
+Unlimited nesting of macros
+Unlimited nesting of conditionals
+Unlimited levels of include files
+Text string pattern matching
+Substring manipulation
+
+Commonality among all cross-assemblers
+
+All PseudoSam(Pseudo brand Symbolic AsseMbler) cross-assemblers conform to a common syntax
+based  on the UNIX V assembler syntax. The opcode and addressing syntax is, however, compatible
+with the processor manufacturer's. Label, assembler directive, and expression operator syntax may
+differ. Commonality makes the transition to different processors easy and fast. The macro processor
+is based on the Unix V M4 macro preprocessor. The result is a more flexible and powerful macro
+processor than generally associated with assembly language.
+
+Compatibility
+
+Special features in addition to the regular UNIX syntax have been added to accomodate the more
+popular manufacturer's syntax. For example, the use of the Intel and Motorola form of hexadecimal
+specification (trailing h and leading $) are accepted. All Pseudo-ops names are redefinable, so you
+can customize the assembler to the form you desire. We include a special Intel.asm file with the most
+popular customizations already performed for you.
+
+Example assembler output listing:
+000001 0000                  ;
+000002 0000                  ;        Simulator Demonstration Program
+000003 0000                  ;
+000004 0000                  ;        8051 version.
+000005 0000                  ;
+000006 0000                  ;        Copyright(c) 1990 PseudoCorp
+000007 0000                  ;        All rights reserved!
+000008 0000                  ;
+000009 0000                  ;
+000010 0000                  ;
+000011 0000
+000012 0000                  ;sfr usage definitions
+000013 0000
+000014 0000                           .org 00h
+000015 0000
+000016 0000                  portctl: .rs 1             ;port control flag(0=a,1=b)
+000017 0001
+000018 0001
+000019 0001                  ;I/O definitions
+000020 0090                           .equ porta,p1   ;input / output port a
+000021 00A0                  portb    .cequ p2        ;input / output port b
+000022 0001
+000023 0001
+000024 0001                  ;Power on and Interrupts
+000025 0001
+000026 0000                           .org 0000h
+000027 0000
+000028 0000 80FE                      sjmp poweroon       ;go to power on routine
+                                           ^
+  *****  Warning  ***** undefined symbol on second pass
+
+Clear Error Messages--Where the Error was Discovered!
+
+000029 0002
+000030 0003                           .org 0003h
+000031 0003
+000032 0003 B200             nmirqtst:cpl portctl     ;toggle the port select bit
+000033 0005 32                        reti
+000034 0006
+000035 0006
+000036 0006                  ;Program Start
+000037 0040                           .org 0040h 
+000038 0040                   
+000039 0040 7581FF           poweron: mov sp,#0ffh     ;top of hidden ram 
+000040 0043 8500B8                    mov ip,0         ; all same priority 
+000041 0046 D2B2                      setb int0        ;enable external interrupt in 0 
+000042 0048 D2A8                      setb ie.0        ;enable external interrupt 0 
+      ...
+000068 0069 22                        ret 
+000069 006A                   
+000070 006A 436F707972696768 copyrite:.db "Copyright (c) 1990\n" 
+       0072 7420286329203139 
+       007A 39300A           
+000071 007D 50736575646F436F          .db "PseudoCorp\n" 
+       0085 72700A
+000072 0088 416C6C2072696768          .db "All rights reserved!\n" 
+       0090 7473207265736572 
+      ...
+000077 0100                            .page 
+000078 0100                   
+000079 0100 008040C020A060E0 rtable:  .db 0x00,0x80,0x40,0xc0,0x20,0xa0,0x60,0xe0 
+000080 0108 109050D030B070F0          .db 0x10,0x90,0x50,0xd0,0x30,0xb0,0x70,0xf0 
+      ...
+000110 01F8 1F9F5FDF3FBF7FFF          .db 0x1f,0x9f,0x5f,0xdf,0x3f,0xbf,0x7f,0xff 
+000111 0200                           .end 
+ 
+Create direct hex code (Intel or Motorola) for easy downloading. A special segmentation feature
+performs automatic separation of object files by ROM.
+
+Available for most processors, these assemblers provide the sophistication and performance expected
+of a much higher priced package. 
+
+PseudoCorp
+Professional Development Products Group
+716 Thimble Shoals Blvd., Suite E
+Newport News, VA 23606
+
+Telephone: (804)873-1947
+FAX: (804)873-2154
+
+
+
+                           PseudoMax Cross-Simulators
+
+Suggested List Price as low as $100 
+
+PseudoCorp is pleased to announce the release of an extensive line of cross-simulators. Simulators
+that allow testing of the program even before the hardware exists. Check out the features:
+
+Screens
+
+       -- 10 user defined screens to display machine windows when and where they are needed.
+      Change instantly from screen to screen ( <alt function key> ).
+
+Windows
+
+      -- The 8051 simulator has 40 machine windows to display all aspects of the processor as the
+      program executes.
+ 
+Screen: 1 Trace:  ON            Update                           SINGLE STEP
+ษออออออออออออออออออออออออออออป                                                   
+บInternal Ram Window 1       บ                                                   
+บ                            บ                                                   
+บAddr    Value Addr    Value บ                                                   
+บR0       = 00 0008     = 00 บ                                                   
+บR1       = 00 0009     = 00 บษออออปษออออปษออออปษออออปษออออปษออออปษออออออออออป
+บR2       = 00 000A     = 00 บบ P0 บบ P1 บบ P2 บบ P3 บบ IP บบ IE บบ SP  Stackบ   
+บR3       = 00 000B     = 00 บบ FF บบ FF บบ FF บบ FF บบ 00 บบ 01 บบ 002D  00 บ   
+บR4       = 00 000C     = 00 บบ FF บบ FF บบ FF บบ FF บบ 00 บบ 81 บบ 002E  00 บ   
+บR5       = 00 000D     = 00 บบ FF บบ FF บบ FF บบ FF บบ 00 บบ 81 บบ 002F  00 บ   
+บR6       = 00 000E     = 00 บบ FF บบ FF บบ FF บบ FF บบ 00 บบ 81 บบ 0030  00 บ   
+บR7       = 00 000F     = 00 บบ FF บบ FF บบ FF บบ FF บบ 00 บบ 81 บบ 0031  00 บ   
+ศออออออออออออออออออออออออออออผศออออผศออออผศออออผศออออผศออออผศออออผศออออออออออผ   
+ษอออออออออออออออออออออออปษออออปษอออออออออออออออออออออออปษออออออปษออออปษออออป     
+บ Loc  Inst Addr        บบ A  บบCY AC F0 RS1 RS0 OV - Pบบ DPTR บบSCONบบTCONบ     
+บ0048 SETB  EX0         บบ 00 บบ 0  0  0  0   0   0 0 1บบ 0000 บบ 00 บบ 00 บ     
+บ004A SETB  EA          บบ 00 บบ 0  0  0  0   0   0 0 1บบ 0000 บบ 00 บบ 00 บ
+บ004C MOV   R0,#00      บบ 00 บบ 0  0  0  0   0   0 0 1บบ 0000 บบ 00 บบ 00 บ     
+บ004F JB    00,005A     บบ 00 บบ 0  0  0  0   0   0 0 1บบ 0000 บบ 00 บบ 00 บ     
+บ0052 MOV   A,P0        บบ 00 บบ 0  0  0  0   0   0 0 1บบ 0000 บบ 00 บบ 00 บ     
+ศอออออออออออออออออออออออผศออออผศอออออออออออออออออออออออผศออออออผศออออผศออออผ     
+ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป 
+บInput: 0080=FF                                                                บ
+ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ  
+
+Memory Attributes
+
+      -- Each memory byte has it's own attribute byte to control such functions as memory mapped
+      i/o, writeability, and breakpoints.
+
+Screen: 1 Trace:  ON            Update                           SINGLE STEP     
+ษออออออออออออออออออออออออออออป                                                   
+บInternal Ram Window 1       บ                                                   
+บ                  ษอออออออออออออออออออออออออออออออออออออออออป
+บAddr    Value Addrบ               Memory Attributes         บ                   
+บR0       = 00 0008บStart ..  Stop          Attributes       บ                   
+บR1       = 00 0009บ                                         บอออปษออออออออออป   
+บR2       = 00 000Aบ                                         บIE บบ SP  Stackบ   
+บR3       = 00 000Bบ                                         บ01 บบ 002D  00 บ   
+บR4       = 00 000Cบ                                         บ81 บบ 002E  00 บ
+บR5       = 00 000Dบ                                         บ81 บบ 002F  00 บ   
+บR6       = 00 000Eบ                                         บ81 บบ 0030  00 บ   
+บR7       = 00 000Fบ                                         บ81 บบ 0031  00 บ   
+ศออออออออออออออออออบ 0000..0054    +r  +e  +w  -io -b  -n    บอออผศออออออออออผ   
+ษออออออออออออออออออบ 0055..0055    +r  +e  +w  -io +b  -n    บอปษออออปษออออป     
+บ Loc  Inst Addr   บ 0056..FFFF    +r  +e  +w  -io -b  -n    บ บบSCONบบTCONบ     
+บ0048 SETB  EX0    บ                                         บ บบ 00 บบ 00 บ     
+บ004A SETB  EA     บ                                         บ บบ 00 บบ 00 บ     
+
+
+
+Trace File
+
+      -- Sometimes an interactive simulation is not enough. The trace file allows recording all or
+      part of a simulation session. Save the session for futher analysis, documentation, or for
+      historical records. 
+
+
+Reset Processor 
+ PC  Inst Addr           A  CY AC F 1 0 O - P B  DPTR SP R0 R1 R2 R3 R4 R5 R6 R7 
+                         Execute              Read           Write 
+ 
+0000 SJMP  0040          00 0  0  0 0 0 0 0 1 00 0000 00 00 00 00 00 00 00 00 00 
+                         0000 80 3E                                      ss 
+0040 MOV   SP,#2F        00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         0040 75 81 2F                     I0081 2F       ss 
+0043 MOV   IP,#00        00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         0043 75 B8 00                     I00B8 00       ss
+0046 SETB  INT0          00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         0046 D2 B2          I00B0 FF       I00B0 FF       ss 
+0048 SETB  EX0           00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         0048 D2 A8          I00A8 00       I00A8 01       ss 
+004A SETB  EA            00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         004A D2 AF          I00A8 01       I00A8 81       ss
+004C MOV   R0,#00        00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         004C 75 00 00                     I0000 00       ss 
+004F JB    00,005A       00 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         004F 20 00 08       I0020 00                     ss 
+0052 MOV   A,P0          55 0  0  0 0 0 0 0 1 00 0000 2F 00 00 00 00 00 00 00 00 
+                         0052 E5 80          I0080 55                     ss 
+
+FAST
+
+Speed up development projects. PseudoMax simulators allow you to test processor instruction
+execution, interrupts, and input/output even before the hardware is built.
+
+POWERFUL
+
+Ten user definable simulation screens each containing any of up to 40 specialized windows (each
+processor has a different set of windows). Windows that let you see into the machine. At a glance see
+what is happening in each register, the stack, i/o ports and blocks of memory. Unlimited breakpoints
+and memory trapping. Map memory to enable or disable read, write, execute or input/output. Trace
+file feature--selectively record your simulator session for later analysis or reference. You can stop
+simulation at any time, save an image of the machine state, and restart the simulation at any future
+time, just as if you had never left. 
+
+Requirements
+
+Requires 512k IBM mono, cga, ega, Hercules mono display or compatible and MS-DOS 2.1 or greater.
+
+
+PseudoCorp
+Professional Development Products
+716 Thimble Shoals Blvd., Suite E
+Newport News, VA 23606
+
+Telephone: (804)873-1947
+FAX: (804)873-2154
+
+* Prices and availability subject to change without notice.
+
+
+
+
+                          PseudoSid Cross-Disassemblers
+
+Suggested List Price as low as $100
+
+PseudoCorp is pleased to announce the release of an extensive line of cross-disassemblers. Easy to
+use disassemblers to help you recover lost source programs. 
+
+Quick look feature
+
+      -- No need for definition file, PseudoSid defaults to code dis-assembly. Just give it an object
+      file.
+
+Total recreation of the source, using a definition file:
+
+      -- Automatic substitution of defined label names for all jumps or branches.
+
+      -- Automatic insertion of supplied comments in recreated source.
+
+      -- Automatic substitution of user supplied expressions for hex operands.
+
+      -- Multiple object or source files.
+
+      -- Automatic code, data, or ascii text generation according to defined memory map.
+
+Example definition file:
+
+include(simex.obj) 
+<50>
+.equ porta,h'90  ; i/o port a (p1) 
+.equ portb,h'a0  ; i/o port b (p2) 
+top: [h'0] ; jump to start of code 
+inthndl: [h'3] ; interrupt handler 
+start: [h'40] ; start of code 
+loop: [h'4f] ; top of code 
+polla: [h'52] ; poll port a 
+.expr "porta" [h'53] 
+.expr "portb" [h'57] 
+pollb: [h'5a] ; poll port b 
+.expr "portb" [h'5b] 
+.expr "porta" [h'57] 
+reverse: [h'62] ; bit reversal subroutine 
+.expr "bitable >> 8"   [h'64] 
+.expr "bitable & h'ff" [h'67] 
+copyrite: .string [h'6a..h'7c]  ; copyright message 
+company:  .string [h'7d..h'87]  ; company name
+rights:   .string [h'88..h'9c]  ; rights statement 
+bitable:  .db [h'100..h'1ff]    ; lookup table 
+disassemble 
+ 
+
+Resultant source after re-assembly 
+ 
+000001 0090                           .EQU    PORTA,h'0090                    ; i/o port a (p1) 
+000002 00A0                           .EQU    PORTB,h'00A0                    ; i/o port b (p2) 
+000003 0000                   
+000004 0000                   
+000005 0000                           .ORG    h'0000 
+000006 0000                   
+000007 0000 803E             TOP:     SJMP    START                           ; jump to start of code 
+000008 0002                   
+000009 0003                           .ORG    h'0003 
+000010 0003
+000011 0003 B200             INTHNDL: CPL     h'00                            ; interrupt handler 
+000012 0005 32                        RETI 
+000013 0006                   
+000014 0040                           .ORG    h'0040 
+000015 0040                   
+000016 0040 75812F           START:   MOV     SP,#h'2F                        ; start of code 
+000017 0043 75B800                    MOV     IP,#h'00 
+000018 0046 D2B2                      SETB    INT0 
+000019 0048 D2A8                      SETB    IE.0 
+000020 004A D2AF                      SETB    EA 
+000021 004C 750000                    MOV     h'00,#h'00 
+000022 004F 200000           LOOP:    JB      h'00,POLLA                      ; top of code 
+000023 0052 E590             POLLA:   MOV     A,porta                         ; poll port a 
+000024 0054 1162                      ACALL   REVERSE 
+000025 0056 F5A0                      MOV     portb,A 
+000026 0058 80F5                      SJMP    LOOP 
+000027 005A E5A0             POLLB:   MOV     A,portb                         ; poll port b
+000028 005C 1162                      ACALL   REVERSE 
+000029 005E F580                      MOV     P0,A 
+000030 0060 80ED                      SJMP    LOOP 
+000031 0062 758301           REVERSE: MOV     DPH,#bitable >> 8               ; bit reversal subroutine 
+000032 0065 758200                    MOV     DPL,#bitable & h'ff 
+000033 0068 93                        MOVC    A,@A + DPTR 
+000034 0069 22                        RET 
+000035 006A                  COPYRITE:  
+000036 006A 436F707972696768          .DB     "Copyright (c) 1988\n"          ; copyright message 
+       0072 7420286329203139 
+       007A 38380A           
+000037 007D 50736575646F436F COMPANY: .DB     "Pseudo Corp\n"                  ; company name 
+       0085 64650A           
+000038 0088 416C6C2072696768 RIGHTS:  .DB     "All rights reserved!\n"        ; rights statement 
+       0090 7473207265736572 
+       0098 766564210A       
+000039 009D
+000040 0100                           .ORG    h'0100 
+000041 0100                   
+000042 0100 008040C020A060E0 BITABLE: .DB     h'00,h'80,h'40,h'C0,h'20,h'A0,h'60,h'E0 ; lookup table 
+      .
+      .
+      .
+000073 01F8 1F9F5FDF3FBF7FFF          .DB     h'1F,h'9F,h'5F,h'DF,h'3F,h'BF,h'7F,h'FF 
+000074 0200 00                        .DB      
+000075 0201 00                        NOP 
+000076 0202                   
+000077 0202                           .END 
+ 
+
+Use PseudoSid "the un-assembler" to recreate lost or un-copyrighted source code from an object file.
+Automatically substitutes defined labels for all jump targets. Definition file allows user to associate
+labels, constant data, memory locations(variables), and comment text with specific object code.
+Define the memory(object code) map as code, data, or text. Unlimited number of object and
+definition files. 
+
+
+Requires 256k and MS-DOS 2.1 or greater and we suggest the appropriate PseudoSam
+cross-assembler.
+
+
+PseudoCorp
+Professional Development Products
+716 Thimble Shoals Blvd., Suite E
+Newport News, VA   23606
+
+Telephone: (804)873-1947
+FAX: (804)873-2154
+
+* Prices and availability subject to change without notice.
+
+
+
+                                           PRICE LIST
+
+Professional Series:
+
+ Assemblers      Simulators     Disassemblers   Developer Packs    Target Processors
+
+PseudoSam 48    PseudoMax 48    PseudoSid 48    PseudoPack 48    Intel 8048 family
+PseudoSam 18    PseudoMax 18    PseudoSid 18    PseudoPack 18    RCA 1802, and 05 families
+PseudoSam 51    PseudoMax 51    PseudoSid 51    PseudoPack 51    Intel 8051 family
+PseudoSam 96    PseudoMax 96    PseudoSid 96    PseudoPack 96    Intel 8096, 98, and 196 families
+PseudoSam 68    PseudoMax 68    PseudoSid 68    PseudoPack 68    Motorola 6800, 02, and 08 families
+PseudoSam 681   PseudoMax 681   PseudoSid 681   PseudoPack 681   Motorola 6801, and 03 families
+PseudoSam 6811  PseudoMax 6811  PseudoSid 6811  PseudoPack 6811  Motorola 6811 family
+PseudoSam 685   PseudoMax 685   PseudoSid 685   PseudoPack 685   Motorola 6805 family
+PseudoSam 631   PseudoMax 631   PseudoSid 631   PseudoPack 631   Hitachi 6301, and 03 families
+PseudoSam 689   PseudoMax 689   PseudoSid 689   PseudoPack 689   Motorola 6809 family
+PseudoSam 65    PseudoMax 65    PseudoSid 65    PseudoPack 65    MOS Technology 6502 family
+PseudoSam 65c   PseudoMax 65c   PseudoSid 65c   PseudoPack 65c   WDC 65C02 family
+PseudoSam 65rc  PseudoMax 65rc  PseudoSid 65rc  PseudoPack 65rc  Rockwell 65C02 family
+PseudoSam 85    PseudoMax 85    PseudoSid 85    PseudoPack 85    Intel 8080, and 85 families
+PseudoSam 80z   PseudoMax 80z   PseudoSid 80z   PseudoPack 80z   Zilog Z80, NSC 800 families
+PseudoSam 180z  PseudoMax 180z  PseudoSid 180z  PseudoPack 180z  Hitachi HD64180 family
+PseudoSam 68k   PseudoMax 68k   PseudoSid 68k   PseudoPack 68k   Motorola 68000, 8, and 10 families
+
+   ($50.00)       ($100.00)       (100.00)        ($200.00)      All listed above
+
+
+
+* Price and availability subject to change without notice.
+
+
+
+                                               PseudoCorp Direct Order Form
+
+
+Ship to: _______________________________       Billing:           _______________________________
+
+         _______________________________                          _______________________________
+
+         _______________________________                          _______________________________
+
+         _______________________________                          _______________________________
+
+         _______________________________                          _______________________________
+
+         _______________________________                          _______________________________
+
+
+For credit card orders:
+
+Name, as shown on card:____________________________________________________
+
+Please indicate:  Visa____ MasterCard____
+
+Number:_________________________________________  Expiration Date:_______________________
+
+Phone Number:_____________________ Signature:____________________________________________
+
+ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤยฤฤฤยฤฤฤฤฤฤฤฤฤฤาฤฤฤฤฤฤฤฤฤฤฟ
+ณProduct Name (including target processor)      ณQtyณ Price ea.บ Total    ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+รฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤลฤฤฤลฤฤฤฤฤฤฤฤฤฤืฤฤฤฤฤฤฤฤฤฤด
+ณ                                               ณ   ณ          บ          ณ
+ฦอออออออออออออออออออออออออออออออออออออออออออออออฯอออฯออออออออออฮออออออออออต
+ณVirginia residents add 4.5% sales tax (or tax #             ).บ          ณ
+ฦออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออฮออออออออออต
+ณShipping and handling $5.00 USA, $10.00 Canada, $20.00        บ          ณ
+ณelsewhere.                                                    บ          ณ
+ณ                                                              บ          ณ
+ฦออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออฮออออออออออต
+ณ                                                   TOTAL      บ          ณ
+ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤะฤฤฤฤฤฤฤฤฤฤู
+
+Enclose your check, or money order payable to PseudoCorp, drawn in US funds, on a US Bank.
+
+Send form to:
+
+          PseudoCorp
+          Professional Development Products Group
+          716 Thimble Shoals Blvd, Suite E
+          Newport News, VA 23606
+          USA
+
+or phone: (804) 873-1947  8:00am to 5:00pm ET Monday thru Friday.
+FAX: (804) 873-2154
+
+P.S. All credit card orders must be signed!

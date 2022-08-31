@@ -1,0 +1,11 @@
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 62 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 64 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 80 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 83 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 86 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 139 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[312] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 180 : Page or Bank selection not needed for this device.  No code generated.
+Message[312] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 199 : Page or Bank selection not needed for this device.  No code generated.
+Message[312] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 217 : Page or Bank selection not needed for this device.  No code generated.
+Message[312] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 237 : Page or Bank selection not needed for this device.  No code generated.
+Message[302] G:\PROJECTS\ROBOT\PIC\I2C\SMBSLAVE.ASM 259 : Register in operand not in bank 0.  Ensure that bank bits are correct.

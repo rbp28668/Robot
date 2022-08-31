@@ -1,0 +1,106 @@
+;Test harness for testing the Virtual Processor for the Robot
+
+;Make sure we're talking to the robot
+%connect
+
+%clearhex  ; in case of junk left over from previous script run
+
+;Load the test harness image.
+"f:\\projects\\robot\\asm51\\test\\vmtestgn.obj" %loadhex
+
+; Start VM code at 1024 now VM code in EPROM
+1024 %org
+
+"VM Start Comparison Test\n" S>> TXDSTR
+
+; Test LT
+"Test LT\n" S>> TXDSTR
+"0000 LT 0000 = " S>>	TXDSTR 0 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0015 LT 0015 = " S>>	TXDSTR 23 >> 23 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT 0015 = " S>>	TXDSTR 0 >> 23 >> 			LT TX16 "\n" S>> TXDSTR
+"0015 LT 0000 = " S>>	TXDSTR 23 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT 0001 = " S>>	TXDSTR 0 >> 1 >> 			LT TX16 "\n" S>> TXDSTR
+"0001 LT 0000 = " S>>	TXDSTR 1 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT 0100 = " S>>	TXDSTR 0 >> 256 >> 			LT TX16 "\n" S>> TXDSTR
+"0100 LT 0000 = " S>>	TXDSTR 256 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT FFFF = " S>>	TXDSTR 0 >> 65535 >>		LT TX16 "\n" S>> TXDSTR
+"FFFF LT 0000 = " S>>	TXDSTR 65535 >> 0 >> 		LT TX16 "\n" S>> TXDSTR
+"FFFE LT FFFF = " S>>	TXDSTR 65534 >> 65535 >>	LT TX16 "\n" S>> TXDSTR
+"FFFF LT FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	LT TX16 "\n" S>> TXDSTR
+"00FF LT 00FF = " S>>	TXDSTR 255 >> 255 >>		LT TX16 "\n" S>> TXDSTR
+"00FE LT 00FF = " S>>	TXDSTR 254 >> 255 >> 	    LT TX16 "\n" S>> TXDSTR
+"0100 LT 00FF = " S>>	TXDSTR 256 >> 255 >>		LT TX16 "\n" S>> TXDSTR
+"00FF LT 0100 = " S>>	TXDSTR 255 >> 256 >> 	    LT TX16 "\n" S>> TXDSTR
+
+; Test GT
+"Test GT\n" S>> TXDSTR
+"0000 GT 0000 = " S>>	TXDSTR 0 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0015 GT 0015 = " S>>	TXDSTR 23 >> 23 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT 0015 = " S>>	TXDSTR 0 >> 23 >> 			GT TX16 "\n" S>> TXDSTR
+"0015 GT 0000 = " S>>	TXDSTR 23 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT 0001 = " S>>	TXDSTR 0 >> 1 >> 			GT TX16 "\n" S>> TXDSTR
+"0001 GT 0000 = " S>>	TXDSTR 1 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT 0100 = " S>>	TXDSTR 0 >> 256 >> 			GT TX16 "\n" S>> TXDSTR
+"0100 GT 0000 = " S>>	TXDSTR 256 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT FFFF = " S>>	TXDSTR 0 >> 65535 >>		GT TX16 "\n" S>> TXDSTR
+"FFFF GT 0000 = " S>>	TXDSTR 65535 >> 0 >> 		GT TX16 "\n" S>> TXDSTR
+"FFFE GT FFFF = " S>>	TXDSTR 65534 >> 65535 >>	GT TX16 "\n" S>> TXDSTR
+"FFFF GT FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	GT TX16 "\n" S>> TXDSTR
+"00FF GT 00FF = " S>>	TXDSTR 255 >> 255 >>		GT TX16 "\n" S>> TXDSTR
+"00FE GT 00FF = " S>>	TXDSTR 254 >> 255 >> 	    GT TX16 "\n" S>> TXDSTR
+"0100 GT 00FF = " S>>	TXDSTR 256 >> 255 >>		GT TX16 "\n" S>> TXDSTR
+"00FF GT 0100 = " S>>	TXDSTR 255 >> 256 >> 	    GT TX16 "\n" S>> TXDSTR
+
+; Test LE
+"Test LE\n" S>> TXDSTR
+"0000 LE 0000 = " S>>	TXDSTR 0 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0015 LE 0015 = " S>>	TXDSTR 23 >> 23 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE 0015 = " S>>	TXDSTR 0 >> 23 >> 			LE TX16 "\n" S>> TXDSTR
+"0015 LE 0000 = " S>>	TXDSTR 23 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE 0001 = " S>>	TXDSTR 0 >> 1 >> 			LE TX16 "\n" S>> TXDSTR
+"0001 LE 0000 = " S>>	TXDSTR 1 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE 0100 = " S>>	TXDSTR 0 >> 256 >> 			LE TX16 "\n" S>> TXDSTR
+"0100 LE 0000 = " S>>	TXDSTR 256 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE FFFF = " S>>	TXDSTR 0 >> 65535 >>		LE TX16 "\n" S>> TXDSTR
+"FFFF LE 0000 = " S>>	TXDSTR 65535 >> 0 >> 		LE TX16 "\n" S>> TXDSTR
+"FFFE LE FFFF = " S>>	TXDSTR 65534 >> 65535 >>	LE TX16 "\n" S>> TXDSTR
+"FFFF LE FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	LE TX16 "\n" S>> TXDSTR
+"00FF LE 00FF = " S>>	TXDSTR 255 >> 255 >>		LE TX16 "\n" S>> TXDSTR
+"00FE LE 00FF = " S>>	TXDSTR 254 >> 255 >> 	    LE TX16 "\n" S>> TXDSTR
+"0100 LE 00FF = " S>>	TXDSTR 256 >> 255 >>		LE TX16 "\n" S>> TXDSTR
+"00FF LE 0100 = " S>>	TXDSTR 255 >> 256 >> 	    LE TX16 "\n" S>> TXDSTR
+
+; Test GE
+"Test GE\n" S>> TXDSTR
+"0000 GE 0000 = " S>>	TXDSTR 0 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0015 GE 0015 = " S>>	TXDSTR 23 >> 23 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE 0015 = " S>>	TXDSTR 0 >> 23 >> 			GE TX16 "\n" S>> TXDSTR
+"0015 GE 0000 = " S>>	TXDSTR 23 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE 0001 = " S>>	TXDSTR 0 >> 1 >> 			GE TX16 "\n" S>> TXDSTR
+"0001 GE 0000 = " S>>	TXDSTR 1 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE 0100 = " S>>	TXDSTR 0 >> 256 >> 			GE TX16 "\n" S>> TXDSTR
+"0100 GE 0000 = " S>>	TXDSTR 256 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE FFFF = " S>>	TXDSTR 0 >> 65535 >>		GE TX16 "\n" S>> TXDSTR
+"FFFF GE 0000 = " S>>	TXDSTR 65535 >> 0 >> 		GE TX16 "\n" S>> TXDSTR
+"FFFE GE FFFF = " S>>	TXDSTR 65534 >> 65535 >>	GE TX16 "\n" S>> TXDSTR
+"FFFF GE FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	GE TX16 "\n" S>> TXDSTR
+"00FF GE 00FF = " S>>	TXDSTR 255 >> 255 >>		GE TX16 "\n" S>> TXDSTR
+"00FE GE 00FF = " S>>	TXDSTR 254 >> 255 >> 	    GE TX16 "\n" S>> TXDSTR
+"0100 GE 00FF = " S>>	TXDSTR 256 >> 255 >>		GE TX16 "\n" S>> TXDSTR
+"00FF GE 0100 = " S>>	TXDSTR 255 >> 256 >> 	    GE TX16 "\n" S>> TXDSTR
+
+
+"VM State at end of tests\n" S>> TXDSTR
+DUMP
+
+"END OF TESTS\n" S>> TXDSTR 
+
+HALT
+
+; Send VM code + test harness
+%sendhex
+%clearhex
+1000 %pause
+
+; Run tests
+"J4100" %sendstring

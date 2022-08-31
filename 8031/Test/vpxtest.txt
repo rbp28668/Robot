@@ -1,0 +1,206 @@
+;Test harness for testing the Virtual Processor Extensions for the Robot
+
+;Make sure we're talking to the robot
+%connect
+
+%clearhex  ; in case of junk left over from previous script run
+
+;Load the test harness image.
+"f:\\projects\\robot\\asm51\\test\\vmtestgn.obj" %loadhex
+
+; Start VM code at 1024 allowing for 1k return stack
+1024 %org
+
+"VMX Start Test\n" S>> TXDSTR
+
+;        STOP    = 1 ,	// Stop processing
+
+;        SINIT   = 2 ,	// intitialise serial port
+SINIT
+
+;        TXCHAR  = 3 ,	// transmit character from LS byte of TOS
+"TXCHAR - transmit an A \n" S>> TXDSTR
+65 >> TXCHAR
+10 >> TXCHAR
+
+;        TXCSTR  = 4 ,	// Transmit string from code memory pointed to by TOS.
+"TXCSTR\n" S>> TXDSTR
+16677 >> TXCSTR
+
+;        TXDSTR  = 5 ,	// Transmit string from external data memory pointed to by TOS
+; Tested already
+
+;        TX8     = 6 ,	// Transmit LS byte of TOS as 2 hex digits
+"TX8\n" S>> TXDSTR
+"33 " S>> TXDSTR 33 >> TX8 "\n" S>> TXDSTR
+"259 " S>> TXDSTR 259 >> TX8 "\n" S>> TXDSTR
+
+;        TX16    = 7 ,	// Transmit 16 bit TOS as 4 hex digits
+; Tested already
+;        RXCHAR  = 8 ,	// receive an ascii char & push char code
+"RXCHAR\n" S>> TXDSTR
+"Echoing: " S>> TXDSTR
+; Echo characters until "*" 
+DUMP
+RXCHAR DUP TXCHAR 42 >> EQU -9 >> ZBRA
+DUMP
+;        RX8     = 9 ,	// receive a hex encoded byte & push 
+"RX8\n" S>> TXDSTR
+; Convert hex to ascii until 0
+RX8 DUP TXCHAR ZEQU -8 >> ZBRA
+
+;        RX16    = 10,	//  receive a hex encoded 16 bit word & push
+"RX16\n" S>> TXDSTR
+; Convert hex to ascii until 0
+RX16 DUP TXCHAR ZEQU -8 >> ZBRA
+10 >> TXCHAR
+
+;        RDIHEX  = 11,	//  read intelhex file in
+
+DUMP
+;        PSGINIT = 12,	//  initialise the PSG
+PSGINIT
+
+;        PSGWR8  = 13,	//  Writes data byte from 2-tos to psg register on TOS
+"PSGWR8 - Beep!\n" S>> TXDSTR
+128 >> 0 	>> PSGWR8 ;.db psgToneA,128
+2 	>> 1   	>> PSGWR8 ;.db psgToneA+1,1
+0 	>> 11  	>> PSGWR8 ;.db psgEnvPd,0
+16 	>> 12 	>> PSGWR8 ;.db psgEnvPd+1,16
+0 	>> 13 	>> PSGWR8 ;.db psgEnvPr,0b         ; single decay
+16 	>> 8 	>> PSGWR8 ;.db psgAmpA,010h        ; use envelope
+254 >> 7 	>> PSGWR8 ;.db psgEnabl,00111110b   ; enable tone A only
+
+
+;		TSET    = 26,   //  set timer from TOS
+;		TIMER   = 27    //  countdown byte to TOS
+"TSET/TIMER - Delay 1s\n" S>> TXDSTR
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+
+;          PSGWR16 = 14,	//  Write 16 bit value from 2-tos to psg register on TOS
+"PSGWR16 - Beep!\n" S>> TXDSTR
+PSGINIT
+640		>> 0 	>> PSGWR16 ;.db psgToneA,128, .db psgToneA+1,1
+4096 	>> 11 	>> PSGWR16 ;.db psgEnvPd,0
+0 		>> 13 	>> PSGWR8  ;.db psgEnvPr,0b         ; single decay
+16 		>> 8 	>> PSGWR8  ;.db psgAmpA,010h        ; use envelope
+254 	>> 7 	>> PSGWR8  ;.db psgEnabl,00111110b   ; enable tone A only
+
+"1s Delay\n" S>> TXDSTR
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+
+;        PSGWRC  = 15,	//  Write data from code memory pointed to by TOS to PSG
+"PSGWRC\n" S>> TXDSTR
+PSGINIT
+16700 >> PSGWRC
+"1s Delay\n" S>> TXDSTR
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+
+;        ADCRD   = 16,	//  Read ADC from channel on TOS, return value on TOS
+DUMP
+"ADCRD - read from channel 1\n" S>> TXDSTR
+64 >> NOP
+1 >> ADCRD TX8 10 >> TXCHAR ; read and transmit ADC channel 1 (wide angle LDR)
+1 >> SUB
+DUP ZEQU -14 >> ZBRA
+DROP
+
+DUMP
+
+; PIOINIT = 17,	//  pio initialisation
+"PIOINIT\n" S>> TXDSTR
+PIOINIT
+
+
+; PIOWRA  = 18,	//  writes TOS to PIO port A
+"PIOWRA\n" S>> TXDSTR
+0 >> NOP
+$	  ; loop to here
+DUP PIOWRA
+5 >> TSET TIMER ZEQU -5 >> ZBRA	; 10mS delay
+1 >> ADD
+DUP 256 >> EQU
+$ 2 + - >> ZBRA ;from here
+DROP
+DUMP
+
+
+;        PIOWRB  = 19,	//  writes TOS to PIO port B
+0 >> PIOWRB
+
+; COLDET  = 21,	//  Collision detect check value to TOS
+; COLSTAT = 22,	//  Collision detect status to TOS
+; COLCLR  = 23,	//  Clear collision detect status
+"COLDET, COLSTAT, COLCLR\n" S>> TXDSTR
+
+COLCLR ; clear any existing state
+
+"Waiting for collision\n" S>> TXDSTR
+NOP $ COLDET $ 2 + - >> ZBRA ; Wait for collision
+
+COLSTAT COLDET 
+"COLDET- " S>> TXDSTR TX8 "\n" S>> TXDSTR
+"COLSTAT- " S>> TXDSTR TX8 "\n" S>> TXDSTR
+
+"Release....\n" S>> TXDSTR
+NOP $ COLSTAT ZEQU $ 2 + - >> ZBRA ; Wait for release
+
+COLSTAT COLDET 
+"COLDET- " S>> TXDSTR TX8 "\n" S>> TXDSTR
+"COLSTAT- " S>> TXDSTR TX8 "\n" S>> TXDSTR
+
+"Clearing\n" S>> TXDSTR
+COLCLR
+
+COLSTAT COLDET 
+"COLDET- " S>> TXDSTR TX8 "\n" S>> TXDSTR
+"COLSTAT- " S>> TXDSTR TX8 "\n" S>> TXDSTR
+
+DUMP
+
+
+
+; PIORDC  = 20,	//  reads PIO port C & puts result on TOS
+"PIORDC \n" S>> TXDSTR
+PIORDC TX8 "\n" S>> TXDSTR
+
+;SERVO   = 24,	//  set servo position from TOS
+"SERVO - Scan\n" S>> TXDSTR
+0 >> SERVO
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+128 >> SERVO
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+255 >> SERVO
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+128 >> SERVO
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+0 >> SERVO
+50 >> TSET TIMER ZEQU -5 >> ZBRA	; 1 second delay
+128 >> SERVO
+
+;		DUMP    = 25,   //   dump VM state
+ 
+
+
+
+; Send VM code + test harness
+%sendhex
+%clearhex
+1000 %pause
+
+; Run tests
+"J4100" %sendstring
+
+
+2000 %pause
+; Send string to echo
+"String to echo*" %sendstring
+
+500 %pause
+; Send data for RX8
+"48656C6C6F00" %sendstring ;Hello
+
+500 %pause
+; Send data for RX16
+"0057006F0072006C00640000" %sendstring ;World
+

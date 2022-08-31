@@ -1,0 +1,545 @@
+000001 0000                  ;*********************************************************************
+000002 0000                  ; Virtual machine extensions for SMB routines
+000003 0000                  ;
+000004 0000                  ; Notes around VM & SMB:
+000005 0000                  ; Little endian - least significant byte at lowest numbered address
+000006 0000                  ; R1 points to top WORD of data stack - need to pre-increment for push, post decrement for pop
+000007 0000                  ; @R1 is LS byte
+000008 0000                  ; SMB protocol reads/writes words LS byte first.
+000009 0000                  ;*********************************************************************
+000010 0000                  
+000011 0000                  
+000012 0000                  ;======================================================================
+000013 0000                  ; vxsmtxba
+000014 0000                  ; Virtual machine SMB transmit byte on channel A
+000015 0000                  ; TOS - Bus address
+000016 0000                  ; 2TOS - device internal address
+000017 0000                  ; 3TOS - data to write
+000018 0000                  ; Write byte:
+000019 0000                  ; tx Start
+000020 0000                  ; tx device bus addr
+000021 0000                  ; tx device addr
+000022 0000                  ; tx device data
+000023 0000                  ; txStop
+000024 0000                  ;======================================================================
+000025 0000                  
+000026 0000 120000           vxsmtxba:       lcall i2csta    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000027 0003 E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000028 0004 19                               dec R1
+000029 0005 19                               dec R1
+000030 0006 120000                           lcall i2ctxa     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000031 0009                                  
+000032 0009 E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000033 000A 19                               dec R1
+000034 000B 19                               dec R1
+000035 000C 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000036 000F                  
+000037 000F E7                               mov A,@R1       ; and data byte to send
+000038 0010 19                               dec R1
+000039 0011 19                               dec R1
+000040 0012 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000041 0015 120000                           lcall i2cspa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000042 0018 22                               ret
+000043 0019                  
+000044 0019                  
+000045 0019                  
+000046 0019                  ;======================================================================
+000047 0019                  ; vxsmtxwa
+000048 0019                  ; Virtual machine SMB transmit word on channel A
+000049 0019                  ; TOS - Bus address
+000050 0019                  ; 2TOS - device internal address
+000051 0019                  ; 3TOS - data to write
+000052 0019                  ; Write word:
+000053 0019                  ; tx Start
+000054 0019                  ; Tx device bus addr
+000055 0019                  ; Tx device addr
+000056 0019                  ; tx device data
+000057 0019                  ; tx device data
+000058 0019                  ; tx Stop
+000059 0019                  ;======================================================================
+000060 0019                  
+000061 0019 120000           vxsmtxwa:       lcall i2csta    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000062 001C E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000063 001D 19                               dec R1
+000064 001E 19                               dec R1
+000065 001F 120000                           lcall i2ctxa     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000066 0022                                  
+000067 0022 E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000068 0023 19                               dec R1
+000069 0024 19                               dec R1
+000070 0025 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000071 0028                  
+000072 0028 E7                               mov A,@R1       ; and ls data byte to send
+000073 0029 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000074 002C 09               		inc R1
+000075 002D E7                               mov A,@R1       ; and ms data byte to send
+000076 002E 000000                           decR1
+                                                 ^
+  *****  Warning  ***** undefined opcode
+000077 0031 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000078 0034 19                               dec R1
+000079 0035 19                               dec R1
+000080 0036 120000                           lcall i2cspa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000081 0039 22                               ret
+000082 003A                  
+000083 003A                  
+000084 003A                  ;======================================================================
+000085 003A                  ; vxsmrxba
+000086 003A                  ; Virtual machine SMB recive byte on channel A
+000087 003A                  ; TOS - Bus address
+000088 003A                  ; 2TOS - device internal address
+000089 003A                  ; Returns read data on TOS
+000090 003A                  ; read byte:
+000091 003A                  ; tx start
+000092 003A                  ; tx device bus addr
+000093 003A                  ; tx device addr
+000094 003A                  ; tx (re)start
+000095 003A                  ; tx device bus addr + 1
+000096 003A                  ; rx byte with NACK set
+000097 003A                  ;======================================================================
+000098 003A                  
+000099 003A 120000           vxsmrxba:       lcall i2csta    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000100 003D E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000101 003E F5F0             		mov B,A		; save it in B for later
+000102 0040 19                               dec R1
+000103 0041 19                               dec R1
+000104 0042 120000                           lcall i2ctxa     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000105 0045                                  
+000106 0045 E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000107 0046 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000108 0049                  
+000109 0049 120000           		lcall i2csta    ; restart
+                                     ^
+  *****  Warning  ***** undefined symbol on second pass
+000110 004C                  		
+000111 004C E5F0                             mov A,B		; saved bus addr
+000112 004E                                  orl #1          ; set read bit
+                                                 ^
+  *****  Warning  ***** improperly formed expression--operand expected
+                                                  ^
+  *****  Warning  ***** improperly formed expression--operator expected
+                                                            ^
+  *****  Warning  ***** comma expected
+                                                            ^
+  *****  Warning  ***** improper element in expression
+000113 004E 120000                           lcall i2ctxa     ; send bus read address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000114 0051                  
+000115 0051 D3                               setb c          ; want to send NACK as last byte read
+000116 0052 000000                           call i2crxa      ; read the byte
+                                                ^
+  *****  Warning  ***** undefined opcode
+000117 0055                  
+000118 0055 F7               		mov @R1,A	; save result as LS byte of TOS
+000119 0056 09               		inc R1
+000120 0057 7700             		mov @R1,#0	; clear MS byte of TOS 
+000121 0059 19               		dec R1
+000122 005A                                 
+000123 005A 120000                           lcall i2cspa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000124 005D 22                               ret
+000125 005E                  
+000126 005E                  ;======================================================================
+000127 005E                  ; vxsmrxwa
+000128 005E                  ; Virtual machine SMB recive word on channel A
+000129 005E                  ; TOS - Bus address
+000130 005E                  ; 2TOS - device internal address
+000131 005E                  ; Returns read data on TOS
+000132 005E                  ; read word:
+000133 005E                  ; tx start
+000134 005E                  ; tx device bus addr
+000135 005E                  ; tx device addr
+000136 005E                  ; tx (re)start
+000137 005E                  ; tx device bus addr + 1
+000138 005E                  ; rx ls byte with NACK clear
+000139 005E                  ; rx ms byte with NACK set
+000140 005E                  ;======================================================================
+000141 005E 120000           vxsmrxwa:       lcall i2csta    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000142 0061 E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000143 0062 F5F0             		mov B,A		; save it in B for later
+000144 0064 19                               dec R1
+000145 0065 19                               dec R1
+000146 0066 120000                           lcall i2ctxa     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000147 0069                                  
+000148 0069 E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000149 006A 120000                           lcall i2ctxa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000150 006D                  
+000151 006D 120000           		lcall i2csta    ; restart
+                                     ^
+  *****  Warning  ***** undefined symbol on second pass
+000152 0070                  		
+000153 0070 E5F0                             mov A,B		; saved bus addr
+000154 0072                                  orl #1          ; set read bit
+                                                 ^
+  *****  Warning  ***** improperly formed expression--operand expected
+                                                  ^
+  *****  Warning  ***** improperly formed expression--operator expected
+                                                            ^
+  *****  Warning  ***** comma expected
+                                                            ^
+  *****  Warning  ***** improper element in expression
+000155 0072 120000                           lcall i2ctxa     ; send bus read address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000156 0075                  
+000157 0075 C3                               clr c           ; want to send ACK as not last byte read
+000158 0076 000000                           call i2crxa      ; read the byte
+                                                ^
+  *****  Warning  ***** undefined opcode
+000159 0079                  
+000160 0079 F7               		mov @R1,A	; save result as LS byte of TOS
+000161 007A 09               		inc R1
+000162 007B                  
+000163 007B D3                               setb c          ; want to send NACK as last byte read
+000164 007C 000000                           call i2crxa      ; read the byte
+                                                ^
+  *****  Warning  ***** undefined opcode
+000165 007F                  
+000166 007F F7               		mov @R1,A	; save result as MS byte of TOS 
+000167 0080 19               		dec R1
+000168 0081                                 
+000169 0081 120000                           lcall i2cspa
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000170 0084 22                               ret
+000171 0085                  
+000172 0085                  
+000173 0085                  
+000174 0085                  
+000175 0085                  
+000176 0085                  
+000177 0085                  ;======================================================================
+000178 0085                  ; vxsmtxbb
+000179 0085                  ; Virtual machine SMB transmit byte on channel B
+000180 0085                  ; TOS - Bus address
+000181 0085                  ; 2TOS - device internal address
+000182 0085                  ; 3TOS - data to write
+000183 0085                  ; Write byte:
+000184 0085                  ; tx Start
+000185 0085                  ; tx device bus addr
+000186 0085                  ; tx device addr
+000187 0085                  ; tx device data
+000188 0085                  ; txStop
+000189 0085                  ;======================================================================
+000190 0085                  
+000191 0085 120000           vxsmtxbb:       lcall i2cstb    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000192 0088 E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000193 0089 19                               dec R1
+000194 008A 19                               dec R1
+000195 008B 120000                           lcall i2ctxb     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000196 008E                                  
+000197 008E E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000198 008F 19                               dec R1
+000199 0090 19                               dec R1
+000200 0091 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000201 0094                  
+000202 0094 E7                               mov A,@R1       ; and data byte to send
+000203 0095 19                               dec R1
+000204 0096 19                               dec R1
+000205 0097 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000206 009A 120000                           lcall i2cspb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000207 009D 22                               ret
+000208 009E                  
+000209 009E                  
+000210 009E                  
+000211 009E                  ;======================================================================
+000212 009E                  ; vxsmtxwb
+000213 009E                  ; Virtual machine SMB transmit word on channel B
+000214 009E                  ; TOS - Bus address
+000215 009E                  ; 2TOS - device internal address
+000216 009E                  ; 3TOS - data to write
+000217 009E                  ; Write word:
+000218 009E                  ; tx Start
+000219 009E                  ; Tx device bus addr
+000220 009E                  ; Tx device addr
+000221 009E                  ; tx device data
+000222 009E                  ; tx device data
+000223 009E                  ; tx Stop
+000224 009E                  ;======================================================================
+000225 009E                  
+000226 009E 120000           vxsmtxwb:       lcall i2cstb    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000227 00A1 E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000228 00A2 19                               dec R1
+000229 00A3 19                               dec R1
+000230 00A4 120000                           lcall i2ctxb     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000231 00A7                                  
+000232 00A7 E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000233 00A8 19                               dec R1
+000234 00A9 19                               dec R1
+000235 00AA 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000236 00AD                  
+000237 00AD E7                               mov A,@R1       ; and ls data byte to send
+000238 00AE 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000239 00B1 09               		inc R1
+000240 00B2 E7                               mov A,@R1       ; and ms data byte to send
+000241 00B3 000000                           decR1
+                                                 ^
+  *****  Warning  ***** undefined opcode
+000242 00B6 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000243 00B9 19                               dec R1
+000244 00BA 19                               dec R1
+000245 00BB                  
+000246 00BB 120000                           lcall i2cspb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000247 00BE 22                               ret
+000248 00BF                  
+000249 00BF                  
+000250 00BF                  ;======================================================================
+000251 00BF                  ; vxsmrxbb
+000252 00BF                  ; Virtual machine SMB recive byte on channel B
+000253 00BF                  ; TOS - Bus address
+000254 00BF                  ; 2TOS - device internal address
+000255 00BF                  ; Returns read data on TOS
+000256 00BF                  ; read byte:
+000257 00BF                  ; tx start
+000258 00BF                  ; tx device bus addr
+000259 00BF                  ; tx device addr
+000260 00BF                  ; tx (re)start
+000261 00BF                  ; tx device bus addr + 1
+000262 00BF                  ; rx byte with NACK set
+000263 00BF                  ;======================================================================
+000264 00BF                  
+000265 00BF 120000           vxsmrxbb:       lcall i2cstb    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000266 00C2 E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000267 00C3 F5F0             		mov B,A		; save it in B for later
+000268 00C5 19                               dec R1
+000269 00C6 19                               dec R1
+000270 00C7 120000                           lcall i2ctxb     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000271 00CA                                  
+000272 00CA E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000273 00CB 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000274 00CE                  
+000275 00CE 120000           		lcall i2cstb    ; restart
+                                     ^
+  *****  Warning  ***** undefined symbol on second pass
+000276 00D1                  		
+000277 00D1 E5F0                             mov A,B		; saved bus addr
+000278 00D3                                  orl #1          ; set read bit
+                                                 ^
+  *****  Warning  ***** improperly formed expression--operand expected
+                                                  ^
+  *****  Warning  ***** improperly formed expression--operator expected
+                                                            ^
+  *****  Warning  ***** comma expected
+                                                            ^
+  *****  Warning  ***** improper element in expression
+000279 00D3 120000                           lcall i2ctxb     ; send bus read address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000280 00D6                  
+000281 00D6 D3                               setb c          ; want to send NACK as last byte read
+000282 00D7 000000                           call i2crxb      ; read the byte
+                                                ^
+  *****  Warning  ***** undefined opcode
+000283 00DA                  
+000284 00DA F7               		mov @R1,A	; save result as LS byte of TOS
+000285 00DB 09               		inc R1
+000286 00DC 7700             		mov @R1,#0	; clear MS byte of TOS 
+000287 00DE 19               		dec R1
+000288 00DF                                 
+000289 00DF 120000                           lcall i2cspb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000290 00E2 22                               ret
+000291 00E3                  
+000292 00E3                  ;======================================================================
+000293 00E3                  ; vxsmrxwb
+000294 00E3                  ; Virtual machine SMB recive word on channel B
+000295 00E3                  ; TOS - Bus address
+000296 00E3                  ; 2TOS - device internal address
+000297 00E3                  ; Returns read data on TOS
+000298 00E3                  ; read word:
+000299 00E3                  ; tx start
+000300 00E3                  ; tx device bus addr
+000301 00E3                  ; tx device addr
+000302 00E3                  ; tx (re)start
+000303 00E3                  ; tx device bus addr + 1
+000304 00E3                  ; rx ls byte with NACK clear
+000305 00E3                  ; rx ms byte with NACK set
+000306 00E3                  ;======================================================================
+000307 00E3 120000           vxsmrxwb:       lcall i2cstb    ; start
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000308 00E6 E7                               mov A,@R1       ; get lsbyte of tos for bus addr
+000309 00E7 F5F0             		mov B,A		; save it in B for later
+000310 00E9 19                               dec R1
+000311 00EA 19                               dec R1
+000312 00EB 120000                           lcall i2ctxb     ; send bus address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000313 00EE                                  
+000314 00EE E7                               mov A,@R1       ; get lsbyte of tos for device internal addr
+000315 00EF 120000                           lcall i2ctxb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000316 00F2                  
+000317 00F2 120000           		lcall i2cstb    ; restart
+                                     ^
+  *****  Warning  ***** undefined symbol on second pass
+000318 00F5                  		
+000319 00F5 E5F0                             mov A,B		; saved bus addr
+000320 00F7                                  orl #1          ; set read bit
+                                                 ^
+  *****  Warning  ***** improperly formed expression--operand expected
+                                                  ^
+  *****  Warning  ***** improperly formed expression--operator expected
+                                                            ^
+  *****  Warning  ***** comma expected
+                                                            ^
+  *****  Warning  ***** improper element in expression
+000321 00F7 120000                           lcall i2ctxb     ; send bus read address of device
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000322 00FA                  
+000323 00FA C3                               clr c           ; want to send ACK as not last byte read
+000324 00FB 000000                           call i2crxb      ; read the byte
+                                                ^
+  *****  Warning  ***** undefined opcode
+000325 00FE                  
+000326 00FE F7               		mov @R1,A	; save result as LS byte of TOS
+000327 00FF 09               		inc R1
+000328 0100                  
+000329 0100 D3                               setb c          ; want to send NACK as last byte read
+000330 0101 000000                           call i2crxb      ; read the byte
+                                                ^
+  *****  Warning  ***** undefined opcode
+000331 0104                  
+000332 0104 F7               		mov @R1,A	; save result as MS byte of TOS 
+000333 0105 19               		dec R1
+000334 0106                                 
+000335 0106 120000                           lcall i2cspb
+                                                   ^
+  *****  Warning  ***** undefined symbol on second pass
+000336 0109 22                               ret
+000337 010A                  
+000338 010A                  
+
+AC              =00D6  INT0            =00B2  PX0             =00B8  VXSMTXBB        =0085  
+ACC             =00E0  INT1            =00B3  PX1             =00BA  VXSMTXWA        =0019  
+ACC.0           =00E0  IP              =00B8  RB8             =009A  VXSMTXWB        =009E  
+ACC.1           =00E1  IP.0            =00B8  RCAP2H          =00CB  
+ACC.2           =00E2  IP.1            =00B9  RCAP2L          =00CA  
+ACC.3           =00E3  IP.2            =00BA  RCLK            =00CD  
+ACC.4           =00E4  IP.3            =00BB  REN             =009C  
+ACC.5           =00E5  IP.4            =00BC  RI              =0098  
+ACC.6           =00E6  IP.5            =00BD  RS0             =00D3  
+ACC.7           =00E7  IP.6            =00BE  RS1             =00D4  
+B               =00F0  IP.7            =00BF  RXD             =00B0  
+B.0             =00F0  IT0             =0088  SBUF            =0099  
+B.1             =00F1  IT1             =008A  SCON            =0098  
+B.2             =00F2  OV              =00D2  SCON.0          =0098  
+B.3             =00F3  P               =00D0  SCON.1          =0099  
+B.4             =00F4  P0              =0080  SCON.2          =009A  
+B.5             =00F5  P0.0            =0080  SCON.3          =009B  
+B.6             =00F6  P0.1            =0081  SCON.4          =009C  
+B.7             =00F7  P0.2            =0082  SCON.5          =009D  
+CCAPM0          =00DA  P0.3            =0083  SCON.6          =009E  
+CCAPM1          =00DB  P0.4            =0084  SCON.7          =009F  
+CCAPM2          =00DC  P0.5            =0085  SM0             =009F  
+CCAPM3          =00DD  P0.6            =0086  SM1             =009E  
+CCAPM4          =00DE  P0.7            =0087  SM2             =009D  
+CCON            =00D8  P1              =0090  SP              =0081  
+CCON.0          =00D8  P1.0            =0090  T2CON           =00C8  
+CCON.1          =00D9  P1.1            =0091  T2CON.0         =00C8  
+CCON.2          =00DA  P1.2            =0092  T2CON.1         =00C9  
+CCON.3          =00DB  P1.3            =0093  T2CON.2         =00CA  
+CCON.4          =00DC  P1.4            =0094  T2CON.3         =00CB  
+CCON.5          =00DD  P1.5            =0095  T2CON.4         =00CC  
+CCON.6          =00DE  P1.6            =0096  T2CON.5         =00CD  
+CCON.7          =00DF  P1.7            =0097  T2CON.6         =00CE  
+CMOD            =00D9  P2              =00A0  T2CON.7         =00CF  
+CPRL2           =00C8  P2.0            =00A0  TB8             =009B  
+CT2             =00C9  P2.1            =00A1  TCLK            =00CC  
+CY              =00D7  P2.2            =00A2  TCON            =0088  
+DPH             =0083  P2.3            =00A3  TCON.0          =0088  
+DPL             =0082  P2.4            =00A4  TCON.1          =0089  
+EA              =00AF  P2.5            =00A5  TCON.2          =008A  
+ES              =00AC  P2.6            =00A6  TCON.3          =008B  
+ET0             =00A9  P2.7            =00A7  TCON.4          =008C  
+ET1             =00AB  P3              =00B0  TCON.5          =008D  
+ET2             =00AD  P3.0            =00B0  TCON.6          =008E  
+EX0             =00A8  P3.1            =00B1  TCON.7          =008F  
+EX1             =00AA  P3.2            =00B2  TF0             =008D  
+EXEN2           =00CB  P3.3            =00B3  TF1             =008F  
+EXF2            =00CE  P3.4            =00B4  TF2             =00CF  
+F0              =00D5  P3.5            =00B5  TH0             =008C  
+I2CSPA          =0000  P3.6            =00B6  TH1             =008D  
+I2CSPB          =0000  P3.7            =00B7  TH2             =00CD  
+I2CSTA          =0000  PCON            =0087  TI              =0099  
+I2CSTB          =0000  PS              =00BC  TL0             =008A  
+I2CTXA          =0000  PSW             =00D0  TL1             =008B  
+I2CTXB          =0000  PSW.0           =00D0  TL2             =00CC  
+IE              =00A8  PSW.1           =00D1  TMOD            =0089  
+IE.0            =00A8  PSW.2           =00D2  TR0             =008C  
+IE.1            =00A9  PSW.3           =00D3  TR1             =008E  
+IE.2            =00AA  PSW.4           =00D4  TR2             =00CA  
+IE.3            =00AB  PSW.5           =00D5  TXD             =00B1  
+IE.4            =00AC  PSW.6           =00D6  VXSMRXBA        =003A  
+IE.5            =00AD  PSW.7           =00D7  VXSMRXBB        =00BF  
+IE.7            =00AF  PT0             =00B9  VXSMRXWA        =005E  
+IE0             =0089  PT1             =00BB  VXSMRXWB        =00E3  
+IE1             =008B  PT2             =00BD  VXSMTXBA        =0000  
+

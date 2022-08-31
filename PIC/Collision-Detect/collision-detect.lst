@@ -1,0 +1,529 @@
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;******************************************************
+                      00002 ;Robot Collision Detection
+                      00003 ;Target: PIC16F818
+                      00004 ;Link with SMBSlave.o
+                      00005 ;******************************************************
+                      00006 
+                      00007 #include p16f818.inc
+                      00001         LIST
+                      00002 ; P16F818.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+                      00316         LIST
+                      00008 #include "../i2c/smb.inc"
+                      00001 ;---------------------------------------------------------------------
+                      00002 ; File: smb.inc
+                      00003 ; Definitions for external SMB functions and callbacks.
+                      00004 ; Define _SMBSLAVE when including in smbslave.asm
+                      00005 ;--------------------------------------------------------------------
+                      00006 
+                      00007 ;---------------------------------------------------------------------
+                      00008 ; Callbacks implemented by calling program
+                      00009 ;---------------------------------------------------------------------
+                      00010 
+                      00011 #ifdef _SMBSLAVE
+                      00012     ; Called with byte written to device in W.  Current address in smbaddr.
+                      00013     extern SMBWrite
+                      00014 
+                      00015     ; Called to get byte from current SMB address (in smbaddr) and return 
+                      00016     ; it in W
+                      00017     extern SMBRead
+                      00018 
+                      00019     ; Called once a read from a slave is complete (master has
+                      00020     ; asserted NACK at the end of the read).
+                      00021     extern SMBRdEnd
+                      00022 
+                      00023         ; Called in polling loop
+                      00024         extern SMBPoll
+                      00025 
+                      00026 #else
+                      00027     ; Called with byte written to device in W.  Current address in smbaddr.
+  0000                00028     global SMBWrite
+                      00029 
+                      00030     ; Called to get byte from current SMB address (in smbaddr) and return 
+                      00031     ; it in W
+  0000                00032     global SMBRead
+                      00033 
+                      00034     ; Called once a read from a slave is complete (master has
+                      00035     ; asserted NACK at the end of the read).
+  0000                00036     global SMBRdEnd
+                      00037 
+                      00038         ; Called in polling loop
+  0000                00039         global SMBPoll
+                      00040 
+                      00041 #endif
+                      00042 
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00043 
+                      00044 ;---------------------------------------------------------------------
+                      00045 ; Entry points (and variable) for SMB slave code.
+                      00046 ;---------------------------------------------------------------------
+                      00047 
+                      00048 #ifdef _SMBSLAVE
+                      00049 
+                      00050     ; Call with left shifted slave address in W
+                      00051         global SMBInit
+                      00052 
+                      00053     ; Goto to handle input
+                      00054         global SMBHandler
+                      00055 
+                      00056     ; Current SMB (i.e. on device) address.
+                      00057         global smbaddr
+                      00058 
+                      00059 #else     
+                      00060     ; Call with left shifted slave address in W
+  0000                00061         extern SMBInit
+                      00062 
+                      00063     ; Goto to handle input
+  0000                00064         extern SMBHandler
+                      00065 
+                      00066     ; Current SMB (i.e. on device) address.
+  0000                00067         extern smbaddr
+                      00068 
+                      00069 
+                      00070 
+                      00071 #endif
+                      00072 
+                      00009 
+2007   3F70           00010                 __CONFIG _BODEN_ON & _CP_OFF & _PWRTE_ON & _WDT_OFF & _LVP_OFF & _INTRC_IO
+                      00011 
+                      00012 
+                      00013 ;=======================================================
+                      00014 ; Constants
+                      00015 ;=======================================================
+                      00016 
+  000000C4            00017 NODE_ADDR       EQU (0x62 << 1)
+                      00018 
+                      00019 
+                      00020 ;=======================================================
+                      00021 ; Variables
+                      00022 ;=======================================================
+                      00023                 udata
+0000                  00024 sticky  res 1                                   ; sticky bits to latch collisions
+                      00025 
+                      00026 ;=======================================================
+                      00027 ; Code
+                      00028 ;=======================================================
+                      00029 
+                      00030 
+                      00031 ;---------------------------------------------------------------------
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00032 ; Vectors
+                      00033 ;---------------------------------------------------------------------
+                      00034 STARTUP code                            ; 
+0000   0000           00035                 nop
+0001   2???           00036                 goto Startup
+                      00037 
+                      00038 PROG    code                                    ; wherever the linker wants to put this
+                      00039 
+                      00040 ;---------------------------------------------------------------------
+                      00041 ; Main Code
+                      00042 ;---------------------------------------------------------------------
+0000                  00043 Startup:
+                      00044         ;Set reset flags
+0000   1683 1303      00045                 banksel PCON
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0002   148E           00046                 bsf PCON,NOT_POR
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0003   140E           00047                 bsf PCON,NOT_BOR
+                      00048     
+                      00049                 ;Set oscillator to 8MHz
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0004   170F           00050         bsf OSCCON, IRCF2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0005   168F           00051         bsf OSCCON, IRCF1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0006   160F           00052         bsf OSCCON, IRCF0
+                      00053 
+                      00054         ; Disable interrupts.
+0007   1283 1303      00055         banksel PIR1
+0009   018C           00056                 clrf PIR1               ; Clear all peripheral interrupt flags.
+000A   130B           00057                 bcf INTCON,PEIE ; Diable all peripheral interrupts
+000B   138B           00058                 bcf INTCON,GIE  ; Disable global interrupts
+                      00059                 
+                      00060                 ; Ports A and B both input
+000C   1683 1303      00061                 banksel ADCON1
+000E   3006           00062                 movlw   0x06                    ; All pins as digital inputs
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000F   009F           00063                 movwf   ADCON1
+0010   1683 1303      00064                 banksel TRISA
+0012   30FF           00065                 movlw   0xFF                    ; Inputs:
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0013   0085           00066                 movwf   TRISA
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0014   0086           00067         movwf   TRISB         
+0015   1283           00068                 bcf             STATUS,RP0
+                      00069         
+                      00070                 ; clear sticky byte
+0016   ???? ????      00071                 banksel sticky
+0018   01??           00072                 clrf    sticky
+                      00073 
+0019   30C4           00074                 movlw   NODE_ADDR
+001A   2???           00075                 call    SMBInit 
+001B   2???           00076                 goto    SMBHandler
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00077 
+                      00078 ;---------------------------------------------------------------------
+                      00079 ; SMBRead - read a byte from device, current addr in smbaddr
+                      00080 ;---------------------------------------------------------------------
+001C                  00081 SMBRead
+001C   ???? ????      00082                 banksel smbaddr
+001E   08??           00083                 movfw   smbaddr
+001F   3A00           00084                 xorlw   0
+0020   1D03           00085                 btfss STATUS,Z
+0021   2???           00086                 goto SMBR1
+                      00087                 ; Read of location 0
+0022   3001           00088                 movlw 0x01              ; software revision 0.1         
+0023   2???           00089                 goto SMBRET
+                      00090 
+0024                  00091 SMBR1
+0024   08??           00092                 movfw   smbaddr
+0025   3A01           00093                 xorlw   1
+0026   1D03           00094                 btfss STATUS,Z
+0027   2???           00095                 goto SMBR2
+                      00096                 ; Read of location 1
+0028   2???           00097                 call RdLines ; get current state of lines in W
+0029   2???           00098                 goto SMBRET
+                      00099 
+002A                  00100 SMBR2
+002A   08??           00101                 movfw   smbaddr
+002B   3A02           00102                 xorlw   2
+002C   1D03           00103                 btfss STATUS,Z
+002D   2???           00104                 goto SMBERR
+                      00105                 ; Read of location 2
+002E   ???? ????      00106                 banksel sticky
+0030   08??           00107                 movfw sticky
+0031   2???           00108                 goto SMBRET
+                      00109 
+0032                  00110 SMBERR  ; Some error such as invalid address.
+0032   30FF           00111                 movlw 0xff      ; error return of FF
+0033                  00112 SMBRET
+0033   0008           00113                 return
+                      00114 
+                      00115 ;---------------------------------------------------------------------
+                      00116 ; SMBWrite - write a byte to device, current addr in smbaddr
+                      00117 ;---------------------------------------------------------------------
+0034                  00118 SMBWrite
+                      00119                 ; Ignore address, just reset the sticky bits.
+0034   ???? ????      00120                 banksel sticky
+0036   01??           00121                 clrf sticky
+0037   0008           00122                 return
+                      00123 
+                      00124 ;---------------------------------------------------------------------
+                      00125 ; SMBRdEnd - signal the end of a read 
+                      00126 ;---------------------------------------------------------------------
+0038                  00127 SMBRdEnd
+0038   0008           00128                 return
+                      00129 
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00130 ;---------------------------------------------------------------------
+                      00131 ; SMBPoll reads the lines
+                      00132 ;---------------------------------------------------------------------
+0039                  00133 SMBPoll
+0039   2???           00134                 call RdLines
+003A   ???? ????      00135                 banksel sticky
+003C   04??           00136                 iorwf sticky,F
+003D   0008           00137                 return
+                      00138 
+                      00139 ; Reads the input lines and returns the results in W
+                      00140 ; Note that the result is inverted as collision detect
+                      00141 ; bits are active low.
+003E                  00142 RdLines
+003E   1283 1303      00143                 banksel PORTB
+0040   0103           00144                 clrw
+                      00145                 ; Bit 7
+0041   1C06           00146                 btfss   PORTB,0 
+0042   3880           00147                 iorlw B'10000000'
+                      00148                 ; Bit 6
+0043   1D05           00149                 btfss   PORTA,2  
+0044   3840           00150                 iorlw B'01000000'
+                      00151                 ; Bit 5
+0045   1D85           00152                 btfss   PORTA,3  
+0046   3820           00153                 iorlw B'00100000'
+                      00154                 ; Bit 4
+0047   1E05           00155                 btfss   PORTA,4  
+0048   3810           00156                 iorlw B'00010000'
+                      00157                 ; Bit 3
+0049   1C85           00158                 btfss   PORTA,1  
+004A   3808           00159                 iorlw B'00001000'
+                      00160                 ; Bit 2
+004B   1C05           00161                 btfss   PORTA,0  
+004C   3804           00162                 iorlw B'00000100'
+                      00163                 ; Bit 1
+004D   1F85           00164                 btfss   PORTA,7  
+004E   3802           00165                 iorlw B'00000010'
+                      00166                 ; Bit 0
+004F   1F05           00167                 btfss   PORTA,6  
+0050   3801           00168                 iorlw B'00000001'
+0051   0008           00169                 return
+                      00170 
+                      00171 
+                      00172                 end
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADCS2                             00000006
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BF                                00000000
+C                                 00000000
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CKE                               00000006
+CKP                               00000004
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FREE                              00000004
+FSR                               00000004
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+INDF                              00000000
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IOFS                              00000002
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRP                               00000007
+NODE_ADDR                         000000C4
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OPTION_REG                        00000081
+OSCCON                            0000008F
+OSCTUNE                           00000090
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+R                                 00000002
+RBIE                              00000003
+RBIF                              00000000
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+R_W                               00000002
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RdLines                           0000003E
+S                                 00000003
+SMBERR                            00000032
+SMBHandler                        00000000
+SMBInit                           00000000
+SMBPoll                           00000039
+SMBR1                             00000024
+SMBR2                             0000002A
+SMBRET                            00000033
+SMBRdEnd                          00000038
+SMBRead                           0000001C
+SMBWrite                          00000034
+SMP                               00000007
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+Startup                           00000000
+T0CS                              00000005
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+UA                                00000001
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_CCP1_RB2                         00003FFF
+_CCP1_RB3                         00002FFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00001FFF
+_CP_OFF                           00003FFF
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+_EXTCLK                           00003FEF
+_EXTRC_CLKOUT                     00003FFF
+_EXTRC_IO                         00003FFE
+_HS_OSC                           00003FEE
+_INTRC_CLKOUT                     00003FFD
+_INTRC_IO                         00003FFC
+_LP_OSC                           00003FEC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_MCLR_OFF                         00003FDF
+_MCLR_ON                          00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WRT_ENABLE_1024                  00003BFF
+_WRT_ENABLE_512                   00003DFF
+_WRT_ENABLE_OFF                   00003FFF
+_XT_OSC                           00003FED
+__16F818                          00000001
+__DEBUG                           1
+smbaddr                           00000000
+sticky                            00000000
+
+MPASM  5.20              COLLISION-DETECT.ASM   6-1-2010  19:57:06         PAGE 10
+
+
+
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     8 reported,     0 suppressed
+
+

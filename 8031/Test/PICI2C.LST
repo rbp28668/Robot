@@ -1,0 +1,314 @@
+000001 0000                  ;======================================================================
+000002 0000                  ; I2C test program
+000003 0000                  ; Drives I2C pins for testing I2C software on PIC16F818 board.
+000004 0000                  ; Runs under Elector 8032 board.
+000005 0000                  ;======================================================================
+000006 0000                  
+000007 0000                  ;======================================================================
+000008 0000                  ; Define interrupt vectors 
+000009 0000                  ;======================================================================
+000010 4000                              .equ rambase,4000h      ;start of dual mapped ram
+000011 4020                              .equ intIE0,rambase+32
+000012 4040                              .equ intTF0,rambase+64
+000013 4060                              .equ intIE1,rambase+96
+000014 4080                              .equ intTF1,rambase+128
+000015 40A0                              .equ intCom,rambase+160
+000016 40C0                              .equ intTF2,rambase+192
+000017 4100                              .equ user,rambase+256   ; User code entry point at 0x4100
+000018 0000                  
+000019 0000                  
+000020 0000                  ;======================================================================
+000021 0000                  ; Bit addresses of i2c lines
+000022 0000                  ;======================================================================
+000023 00B4                  		.equ sda,P3.4		; bit address of P3.4 - T0 - SDA
+000024 00B5                  		.equ scl,P3.5		; bit address of p3.5 - T1 - SCL
+000025 0000                  
+000026 0000                  ;======================================================================
+000027 0000                  ; I2C addresses
+000028 0000                  ;======================================================================
+000029 00C0                  		.equ slave,0C0h
+000030 0000                  		
+000031 0000                  ;======================================================================
+000032 0000                  ;-- System variables at start of general purpose memory area
+000033 0000                  ;======================================================================
+000034 0020                              .equ    varbase,    020h          ; start in bitmapped area
+000035 0020                  	    .equ    counter,    varbase
+000036 0000                  
+000037 0000                  ;======================================================================
+000038 0000                  ;======================================================================
+000039 4100                              	.org user
+000040 4100                  
+000041 4100 12414E           		lcall scominit
+000042 4103 E541             		mov a,65
+000043 4105 124161           		lcall scomtxa
+000044 4108                  
+000045 4108 904136           		mov dptr,#startmsg
+000046 410B 124169           		lcall scomtxc
+000047 410E                  
+000048 410E E500             		mov a,0
+000049 4110 850020           		mov counter,0
+000050 4113                  
+000051 4113 124198           loop:		lcall i2cstr	; start
+000052 4116                  		
+000053 4116 74C0             		mov a,#Slave
+000054 4118 1241C2           		lcall i2ctx	; Send i2C address as WRITE
+000055 411B                  		
+000056 411B 7400             		mov a,#0	; write smb register address
+000057 411D 1241C2           		lcall i2ctx
+000058 4120                  
+000059 4120 E520             		mov a,counter
+000060 4122 04               		inc a
+000061 4123 F520             		mov counter,a
+000062 4125 1241C2           		lcall i2ctx	; send data byte
+000063 4128                  		
+000064 4128 904136           		mov dptr,#startmsg
+000065 412B 124169           		lcall scomtxc
+000066 412E 90414B                       	mov dptr,#crlf
+000067 4131 124169           	        lcall scomtxc
+000068 4134                  			
+000069 4134                  ;		lcall i2cstr	; restart
+000070 4134                  ;		mov a,#slave+1	; read from slave
+000071 4134                  ;		lcall i2ctx
+000072 4134                  ;		setb c		; want to send NACK as only read 1 byte
+000073 4134                  ;		lcall i2crx	; read single byte
+000074 4134                  ;		lcall scomtx8	; transmit
+000075 4134                  ;            	mov dptr,#crlf
+000076 4134                  ;	        lcall scomtxc
+000077 4134 80DD                         	sjmp loop        
+000078 4136                  
+000079 4136 5049433136463831 startmsg:	.db "PIC16F818 I2C test\r\n\0" 
+       413E 3820493243207465
+       4146 73740D0A00      
+000080 414B 0D0A00           crlf:       .db "\r\n\0"
+000081 414E                  ;======================================================================
+000082 414E                  ; scominit
+000083 414E                  ; Initialises the serial port to transmit/receive data at 2400 baud
+000084 414E                  ; Parameters:   NONE
+000085 414E                  ; Returns:      NOTHING
+000086 414E                  ;======================================================================
+000087 414E 53890F           scominit:   anl     tmod,#0fh   ; clear t1 control bits
+000088 4151 438920                       orl     tmod,#20h   ; set t1 for mode 2 (auto reload)
+000089 4154 758DF3                       mov     th1,#243    ; 2400 baud with 12Mhz clock (actually 2403.8)
+000090 4157 D28E                         setb    tr1         ; TCON.6 - run timer 1
+000091 4159                              ;orl     pcon,#80h   ; set SMOD - 2x baud ->4800
+000092 4159 759850                       mov     scon,#50h   ; 8 bit UART, receive enabled
+000093 415C C299                         clr     ti          
+000094 415E C298                         clr     ri
+000095 4160 22                           ret
+000096 4161                  
+000097 4161                  ;======================================================================
+000098 4161                  ; scomtxa
+000099 4161                  ; Transmits the character in A
+000100 4161                  ; Parameters:   char to transmit in A
+000101 4161                  ; Returns:      NOTHING
+000102 4161                  ;======================================================================
+000103 4161 F599             scomtxa:    mov     sbuf,a      ; transmit a
+000104 4163 3099FD           scomtxw:    jnb     scon.1, scomtxw ; wait until char transmitted
+000105 4166 C299                         clr     scon.1      ; reset TI before next char
+000106 4168 22                           ret
+000107 4169                  
+000108 4169                  ;======================================================================
+000109 4169                  ; scomtxc
+000110 4169                  ; Transmits the zero terminated string, from code memory, pointed
+000111 4169                  ; to by DPTR
+000112 4169                  ; Parameters:   Pointer to code string in DPTR
+000113 4169                  ; Returns:      NOTHING
+000114 4169                  ; Modifies:     A, DPTR
+000115 4169                  ;======================================================================
+000116 4169 E4               scomtxc:    clr     a           ; zero offset
+000117 416A 93                           movc    a,@a+dptr
+000118 416B 6005                         jz      scomcz      ; 0 byte for end of string
+000119 416D 3161                         acall    scomtxa    ; transmit char
+000120 416F A3                           inc     dptr
+000121 4170 80F7                         sjmp    scomtxc     ; next char
+000122 4172 22               scomcz:     ret
+000123 4173                  
+000124 4173                  
+000125 4173                  ;======================================================================
+000126 4173                  ; scomtx8
+000127 4173                  ; Transmits A as 2 hex digits
+000128 4173                  ; Parameters:   byte to transmit in A
+000129 4173                  ; Returns:      NOTHING
+000130 4173                  ; Modifies:     A,B,DPTR
+000131 4173                  ;======================================================================
+000132 4173 F5F0             scomtx8:    mov     b,a         ; save for low byte
+000133 4175 C4                           swap    a           ; get ms nibble -> ls
+000134 4176 540F                         anl     a,#15       ; zero high nibble
+000135 4178 3185                         acall   scomhcon    ; convert to hex
+000136 417A 3161                         acall   scomtxa     ; and send it
+000137 417C E5F0                         mov     a,b         ; get ls nibble saved earlier
+000138 417E 540F                         anl     a,#15       ; zero high nibble
+000139 4180 3185                         acall   scomhcon    ; convert to hex
+000140 4182 3161                         acall   scomtxa     ; and send it
+000141 4184 22                           ret
+000142 4185 04               scomhcon:   inc     a           ; need to allow 1 byte for ret
+000143 4186 83                           movc    a,@a+pc     ; look up to convert binary to hex digit
+000144 4187 22                           ret
+000145 4188 3031323334353637 scomhtab:   .db "0123456789ABCDEF"
+       4190 3839414243444546
+000146 4198                  
+000147 4198                  
+000148 4198                  ;======================================================================
+000149 4198                  
+000150 4198                  ; I2C Start routine
+000151 4198 D2B4             i2cstr:		setb sda
+000152 419A 00               			nop
+000153 419B 00               			nop
+000154 419C 00               			nop
+000155 419D 00               			nop
+000156 419E D2B5             			setb scl
+000157 41A0 00               			nop
+000158 41A1 00               			nop
+000159 41A2 00               			nop
+000160 41A3 00               			nop
+000161 41A4 C2B4             			clr sda
+000162 41A6 00               			nop
+000163 41A7 00               			nop
+000164 41A8 00               			nop
+000165 41A9 00               			nop
+000166 41AA C2B5             			clr scl
+000167 41AC 00               			nop
+000168 41AD 00               			nop
+000169 41AE 00               			nop
+000170 41AF 22               			ret
+000171 41B0                  
+000172 41B0                  
+000173 41B0                  ; I2C Stop routine
+000174 41B0 C2B4             i2cstp:		clr sda
+000175 41B2 00               			nop
+000176 41B3 00               			nop
+000177 41B4 00               			nop
+000178 41B5 00               			nop
+000179 41B6 D2B5             			setb scl
+000180 41B8 00               			nop
+000181 41B9 00               			nop
+000182 41BA 00               			nop
+000183 41BB 00               			nop
+000184 41BC D2B4             			setb sda
+000185 41BE 00               			nop
+000186 41BF 00               			nop
+000187 41C0 00               			nop
+000188 41C1 22               			ret
+000189 41C2                  
+000190 41C2                  ; I2C transmit.  Byte in A
+000191 41C2                  ; returns ~ACK in C
+000192 41C2                  ; uses R0
+000193 41C2 7808             i2ctx:		mov r0,#8
+000194 41C4 33               i2ctx1:		rlc a				; msb -> A
+000195 41C5 92B4             			mov sda,c
+000196 41C7 D2B5             			setb scl
+000197 41C9 00               			nop
+000198 41CA 00               			nop
+000199 41CB 00               			nop
+000200 41CC 00               			nop
+000201 41CD C2B5             			clr scl
+000202 41CF 00               			nop
+000203 41D0 D8F2             			djnz r0,i2ctx1
+000204 41D2 00               			nop
+000205 41D3 00               			nop
+000206 41D4 D2B4             			setb sda
+000207 41D6 D2B5             			setb scl
+000208 41D8 00               			nop
+000209 41D9 00               			nop
+000210 41DA 00               			nop
+000211 41DB A2B4             			mov c,sda			; get ack bit, low is ACK, high NACK
+000212 41DD C2B5             			clr scl
+000213 41DF 22               			ret
+000214 41E0                  
+000215 41E0                  ; I2C receive.  Ack flag in C, returns byte in A
+000216 41E0                  ; uses R0
+000217 41E0 D2B4             i2crx:		setb sda			; make sure data released
+000218 41E2 7808             			mov r0, #8
+000219 41E4 33               i2crx1:		rlc a
+000220 41E5 D2B5             			setb scl
+000221 41E7 30B5FD           i2crx2:		jnb scl,i2crx2		; clock stretch from slave?
+000222 41EA 00               			nop
+000223 41EB 00               			nop
+000224 41EC A2B4             			mov c,sda
+000225 41EE C2B5             			clr scl
+000226 41F0 00               			nop
+000227 41F1 00               			nop
+000228 41F2 D8F0             			djnz r0,i2crx1
+000229 41F4 33               			rlc a				; last bit to acc & ack to C
+000230 41F5 92B4             			mov sda,c
+000231 41F7 D2B5             			setb scl
+000232 41F9 00               			nop
+000233 41FA 00               			nop
+000234 41FB 00               			nop
+000235 41FC 00               			nop
+000236 41FD C2B5             			clr scl
+000237 41FF D2B4             			setb sda
+000238 4201 22               			ret
+000239 4202                  
+000240 4202                  
+000241 4202                  
+000242 4202                  
+000243 4202                  
+000244 4202                  
+
+AC              =00D6  IE.7            =00AF  PSW.1           =00D1  TCON.5          =008D  
+ACC             =00E0  IE0             =0089  PSW.2           =00D2  TCON.6          =008E  
+ACC.0           =00E0  IE1             =008B  PSW.3           =00D3  TCON.7          =008F  
+ACC.1           =00E1  INT0            =00B2  PSW.4           =00D4  TF0             =008D  
+ACC.2           =00E2  INT1            =00B3  PSW.5           =00D5  TF1             =008F  
+ACC.3           =00E3  INTCOM          =40A0  PSW.6           =00D6  TF2             =00CF  
+ACC.4           =00E4  INTIE0          =4020  PSW.7           =00D7  TH0             =008C  
+ACC.5           =00E5  INTIE1          =4060  PT0             =00B9  TH1             =008D  
+ACC.6           =00E6  INTTF0          =4040  PT1             =00BB  TH2             =00CD  
+ACC.7           =00E7  INTTF1          =4080  PT2             =00BD  TI              =0099  
+B               =00F0  INTTF2          =40C0  PX0             =00B8  TL0             =008A  
+B.0             =00F0  IP              =00B8  PX1             =00BA  TL1             =008B  
+B.1             =00F1  IP.0            =00B8  RAMBASE         =4000  TL2             =00CC  
+B.2             =00F2  IP.1            =00B9  RB8             =009A  TMOD            =0089  
+B.3             =00F3  IP.2            =00BA  RCAP2H          =00CB  TR0             =008C  
+B.4             =00F4  IP.3            =00BB  RCAP2L          =00CA  TR1             =008E  
+B.5             =00F5  IP.4            =00BC  RCLK            =00CD  TR2             =00CA  
+B.6             =00F6  IP.5            =00BD  REN             =009C  TXD             =00B1  
+B.7             =00F7  IP.6            =00BE  RI              =0098  USER            =4100  
+CCAPM0          =00DA  IP.7            =00BF  RS0             =00D3  VARBASE         =0020  
+CCAPM1          =00DB  IT0             =0088  RS1             =00D4  
+CCAPM2          =00DC  IT1             =008A  RXD             =00B0  
+CCAPM3          =00DD  LOOP            =4113  SBUF            =0099  
+CCAPM4          =00DE  OV              =00D2  SCL             =00B5  
+CCON            =00D8  P               =00D0  SCOMCZ          =4172  
+CCON.0          =00D8  P0              =0080  SCOMHCON        =4185  
+CCON.1          =00D9  P0.0            =0080  SCOMHTAB        =4188  
+CCON.2          =00DA  P0.1            =0081  SCOMINIT        =414E  
+CCON.3          =00DB  P0.2            =0082  SCOMTX8         =4173  
+CCON.4          =00DC  P0.3            =0083  SCOMTXA         =4161  
+CCON.5          =00DD  P0.4            =0084  SCOMTXC         =4169  
+CCON.6          =00DE  P0.5            =0085  SCOMTXW         =4163  
+CCON.7          =00DF  P0.6            =0086  SCON            =0098  
+CMOD            =00D9  P0.7            =0087  SCON.0          =0098  
+COUNTER         =0020  P1              =0090  SCON.1          =0099  
+CPRL2           =00C8  P1.0            =0090  SCON.2          =009A  
+CRLF            =414B  P1.1            =0091  SCON.3          =009B  
+CT2             =00C9  P1.2            =0092  SCON.4          =009C  
+CY              =00D7  P1.3            =0093  SCON.5          =009D  
+DPH             =0083  P1.4            =0094  SCON.6          =009E  
+DPL             =0082  P1.5            =0095  SCON.7          =009F  
+EA              =00AF  P1.6            =0096  SDA             =00B4  
+ES              =00AC  P1.7            =0097  SLAVE           =00C0  
+ET0             =00A9  P2              =00A0  SM0             =009F  
+ET1             =00AB  P2.0            =00A0  SM1             =009E  
+ET2             =00AD  P2.1            =00A1  SM2             =009D  
+EX0             =00A8  P2.2            =00A2  SP              =0081  
+EX1             =00AA  P2.3            =00A3  STARTMSG        =4136  
+EXEN2           =00CB  P2.4            =00A4  T2CON           =00C8  
+EXF2            =00CE  P2.5            =00A5  T2CON.0         =00C8  
+F0              =00D5  P2.6            =00A6  T2CON.1         =00C9  
+I2CRX           =41E0  P2.7            =00A7  T2CON.2         =00CA  
+I2CRX1          =41E4  P3              =00B0  T2CON.3         =00CB  
+I2CRX2          =41E7  P3.0            =00B0  T2CON.4         =00CC  
+I2CSTP          =41B0  P3.1            =00B1  T2CON.5         =00CD  
+I2CSTR          =4198  P3.2            =00B2  T2CON.6         =00CE  
+I2CTX           =41C2  P3.3            =00B3  T2CON.7         =00CF  
+I2CTX1          =41C4  P3.4            =00B4  TB8             =009B  
+IE              =00A8  P3.5            =00B5  TCLK            =00CC  
+IE.0            =00A8  P3.6            =00B6  TCON            =0088  
+IE.1            =00A9  P3.7            =00B7  TCON.0          =0088  
+IE.2            =00AA  PCON            =0087  TCON.1          =0089  
+IE.3            =00AB  PS              =00BC  TCON.2          =008A  
+IE.4            =00AC  PSW             =00D0  TCON.3          =008B  
+IE.5            =00AD  PSW.0           =00D0  TCON.4          =008C  
+

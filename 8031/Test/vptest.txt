@@ -1,0 +1,443 @@
+;Test harness for testing the Virtual Processor for the Robot
+
+;Make sure we're talking to the robot
+%connect
+
+%clearhex  ; in case of junk left over from previous script run
+
+;Load the test harness image.
+"f:\\projects\\robot\\asm51\\test\\vmtestgn.obj" %loadhex
+
+; Start VM code at 1024 now VM code in EPROM
+1024 %org
+
+"VM Start Test\n" S>> TXDSTR
+
+; Test printing out 1234 (hex - 4660 decimal)
+4660 >> NOP TX16 "\n" S>> TXDSTR
+
+; Quick check of -ve numbers FFFE
+-2 >> NOP TX16 "\n" S>> TXDSTR
+
+; Test multiple numbers on stack - should print out in ascending order
+"Test basic eval stack\n" S>> TXDSTR
+4 >> NOP
+3 >> NOP
+2 >> NOP
+1 >> NOP
+0 >> NOP
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+
+; Test multiple numbers on stack with auto NOP- should print out in ascending order
+9 >> 8 >> 7 >> 6 >> 5 >> 
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+TX16 "\n" S>> TXDSTR
+
+; Test addition
+"Test addition\n" S>> TXDSTR
+"1 + 1 = " S>> 		TXDSTR 1 >> 1 >> 		ADD TX16 "\n" S>> TXDSTR
+"1 + 2 = " S>>		TXDSTR 1 >> 2 >> 		ADD	TX16 "\n" S>> TXDSTR
+"FF + 1 = " S>>		TXDSTR 255 >> 1 >> 		ADD	TX16 "\n" S>> TXDSTR
+"FFFF + 1 = " S>>	TXDSTR 65535 >> 1 >> 	ADD	TX16 "\n" S>> TXDSTR
+"1 + FF = " S>>		TXDSTR 1 >>  255 >> 	ADD	TX16 "\n" S>> TXDSTR
+"1 + FFFF = " S>>	TXDSTR 1 >> 65535 >> 	ADD	TX16 "\n" S>> TXDSTR
+
+; Test Subtraction (SUB)
+"Test Subtraction\n" S>> TXDSTR
+"2 - 1 = " S>> 		TXDSTR 2 >> 1 >> 		SUB TX16 "\n" S>> TXDSTR
+"0 - 1 = " S>>		TXDSTR 0 >> 1 >> 		SUB	TX16 "\n" S>> TXDSTR
+"1 - 2 = " S>>		TXDSTR 1 >> 2 >> 		SUB	TX16 "\n" S>> TXDSTR
+"FFFF - 1 = " S>>	TXDSTR 65535 >> 1 >> 	SUB	TX16 "\n" S>> TXDSTR
+"FF - 1 = " S>>		TXDSTR 255 >> 1 >> 	    SUB	TX16 "\n" S>> TXDSTR
+"1 - FFFF = " S>>	TXDSTR 1 >> 65535 >> 	SUB	TX16 "\n" S>> TXDSTR
+"1 - FF = " S>>	    TXDSTR 1 >> 255 >> 	    SUB	TX16 "\n" S>> TXDSTR
+
+; Test Multiplication (MULT)
+"Test Multiplication\n" S>> TXDSTR
+"1 * 1 = " S>> 		TXDSTR 1 >> 1 >> 		MULT TX16 "\n" S>> TXDSTR
+"2 * 1 = " S>>		TXDSTR 2 >> 1 >> 		MULT TX16 "\n" S>> TXDSTR
+"1 * 2 = " S>>		TXDSTR 1 >> 2 >> 		MULT TX16 "\n" S>> TXDSTR
+"2 * 2 = " S>>		TXDSTR 2 >> 2 >> 		MULT TX16 "\n" S>> TXDSTR
+"FF * FF = " S>>	TXDSTR 255 >> 255 >> 	MULT TX16 "\n" S>> TXDSTR
+"7 * -3 = " S>>	    TXDSTR 7 >> -3 >> 		MULT TX16 "\n" S>> TXDSTR
+"-7 * 3 = " S>>	    TXDSTR -7 >> 3 >> 		MULT TX16 "\n" S>> TXDSTR
+"-7 * -3 = " S>>    TXDSTR -7 >> -3 >> 		MULT TX16 "\n" S>> TXDSTR
+
+; Test Division (DIV)
+"Test Division\n" S>> TXDSTR
+"1 / 1 = " S>> 		TXDSTR 1 >> 1 >> 		DIV TX16 "\n" S>> TXDSTR
+"2 / 1 = " S>>		TXDSTR 2 >> 1 >> 		DIV	TX16 "\n" S>> TXDSTR
+"1 / 2 = " S>>		TXDSTR 1 >> 2 >> 		DIV	TX16 "\n" S>> TXDSTR
+"2 / 2 = " S>>		TXDSTR 2 >> 2 >> 		DIV	TX16 "\n" S>> TXDSTR
+"7 / 3 = " S>>		TXDSTR 7 >> 3 >> 		DIV	TX16 "\n" S>> TXDSTR
+"125 / 23 = " S>>	TXDSTR 125 >> 23 >>		DIV	TX16 "\n" S>> TXDSTR
+"FFFF / FF = " S>>	TXDSTR 65535 >> 255 >> 	DIV	TX16 "\n" S>> TXDSTR
+"7 / -3 = " S>>	    TXDSTR 7 >> -3 >> 		DIV TX16 "\n" S>> TXDSTR
+"-7 / 3 = " S>>	    TXDSTR -7 >> 3 >> 		DIV TX16 "\n" S>> TXDSTR
+"-7 / -3 = " S>>    TXDSTR -7 >> -3 >> 		DIV TX16 "\n" S>> TXDSTR
+
+; Test Modulo (MOD)
+"Test Modulo\n" S>> TXDSTR
+"1 MOD 1 = " S>> 	TXDSTR 1 >> 1 >> 		MOD TX16 "\n" S>> TXDSTR
+"2 MOD 1 = " S>>	TXDSTR 2 >> 1 >> 		MOD	TX16 "\n" S>> TXDSTR
+"1 MOD 2 = " S>>	TXDSTR 1 >> 2 >> 		MOD	TX16 "\n" S>> TXDSTR
+"5 MOD 2 = " S>>	TXDSTR 5 >> 2 >> 		MOD	TX16 "\n" S>> TXDSTR
+"7 MOD 3 = " S>>	TXDSTR 7 >> 3 >> 		MOD	TX16 "\n" S>> TXDSTR
+"8 MOD 3 = " S>>	TXDSTR 8 >> 3 >> 		MOD	TX16 "\n" S>> TXDSTR
+"125 MOD 23 = " S>>	TXDSTR 125 >> 23 >>		MOD	TX16 "\n" S>> TXDSTR
+"FFFF MOD 2 = " S>>	TXDSTR 65535 >> 2 >> 	MOD	TX16 "\n" S>> TXDSTR
+"2 MOD FFFF = " S>>	TXDSTR 2 >> 65535 >>  	MOD	TX16 "\n" S>> TXDSTR
+"7 MOD -3 = " S>>	TXDSTR 7 >> -3 >> 		MOD TX16 "\n" S>> TXDSTR
+"-7 MOD 3 = " S>>	TXDSTR -7 >> 3 >> 		MOD TX16 "\n" S>> TXDSTR
+"-7 MOD -3 = " S>>  TXDSTR -7 >> -3 >> 		MOD TX16 "\n" S>> TXDSTR
+
+; Test AND
+"Test AND\n" S>> 		TXDSTR
+"0000 AND 0000 = " S>>	TXDSTR 0 >> 0 >> 			AND TX16 "\n" S>> TXDSTR
+"00FF AND 00FF = " S>>	TXDSTR 255 >> 255 >> 		AND TX16 "\n" S>> TXDSTR
+"FFFF AND FFFF = " S>> 	TXDSTR 65535 >> 65535 >> 	AND TX16 "\n" S>> TXDSTR
+"0000 AND 00FF = " S>>	TXDSTR 0 >> 255 >> 			AND TX16 "\n" S>> TXDSTR
+"0000 AND FF00 = " S>>	TXDSTR 0 >> 65280 >>		AND TX16 "\n" S>> TXDSTR
+"0000 AND FFFF = " S>> 	TXDSTR 0 >> 65535 >> 		AND TX16 "\n" S>> TXDSTR
+"00FF AND 0000 = " S>>	TXDSTR 255 >> 0 >> 			AND TX16 "\n" S>> TXDSTR
+"FF00 AND 0000 = " S>>	TXDSTR 65280 >> 0 >> 		AND TX16 "\n" S>> TXDSTR
+"FFFF AND 0000 = " S>> 	TXDSTR 65535 >> 0 >> 		AND TX16 "\n" S>> TXDSTR
+"00FF AND FFFF = " S>> 	TXDSTR 255 >> 65535 >> 		AND TX16 "\n" S>> TXDSTR
+"FF00 AND FFFF = " S>> 	TXDSTR 65280 >> 65535 >>	AND TX16 "\n" S>> TXDSTR
+"FFFF AND 00FF = " S>> 	TXDSTR 65535 >> 255 >> 		AND TX16 "\n" S>> TXDSTR
+"FFFF AND FF00 = " S>> 	TXDSTR 65535 >> 65280 >> 	AND TX16 "\n" S>> TXDSTR
+
+; Test OR
+"Test OR\n" S>> TXDSTR
+"0000 OR 0000 = " S>>	TXDSTR 0 >> 0 >> 			OR TX16 "\n" S>> TXDSTR
+"00FF OR 00FF = " S>>	TXDSTR 255 >> 255 >> 		OR TX16 "\n" S>> TXDSTR
+"FFFF OR FFFF = " S>> 	TXDSTR 65535 >> 65535 >> 	OR TX16 "\n" S>> TXDSTR
+"0000 OR 00FF = " S>>	TXDSTR 0 >> 255 >> 			OR TX16 "\n" S>> TXDSTR
+"0000 OR FF00 = " S>>	TXDSTR 0 >> 65280 >>		OR TX16 "\n" S>> TXDSTR
+"0000 OR FFFF = " S>> 	TXDSTR 0 >> 65535 >> 		OR TX16 "\n" S>> TXDSTR
+"00FF OR 0000 = " S>>	TXDSTR 255 >> 0 >> 			OR TX16 "\n" S>> TXDSTR
+"FF00 OR 0000 = " S>>	TXDSTR 65280 >> 0 >> 		OR TX16 "\n" S>> TXDSTR
+"FFFF OR 0000 = " S>> 	TXDSTR 65535 >> 0 >> 		OR TX16 "\n" S>> TXDSTR
+"00FF OR FFFF = " S>> 	TXDSTR 255 >> 65535 >> 		OR TX16 "\n" S>> TXDSTR
+"FF00 OR FFFF = " S>> 	TXDSTR 65280 >> 65535 >>	OR TX16 "\n" S>> TXDSTR
+"FFFF OR 00FF = " S>> 	TXDSTR 65535 >> 255 >> 		OR TX16 "\n" S>> TXDSTR
+"FFFF OR FF00 = " S>> 	TXDSTR 65535 >> 65280 >> 	OR TX16 "\n" S>> TXDSTR
+
+; Test NOT
+"Test NOT\n" S>> TXDSTR
+"NOT 0000 = " S>> 		TXDSTR 0 >>		NOT TX16 "\n" S>> TXDSTR
+"NOT 00FF = " S>> 		TXDSTR 255 >>	NOT TX16 "\n" S>> TXDSTR
+"NOT FF00 = " S>> 		TXDSTR 65280 >>	NOT TX16 "\n" S>> TXDSTR
+"NOT FFFF = " S>> 		TXDSTR 65535 >>	NOT TX16 "\n" S>> TXDSTR
+
+; Test EQU
+"Test EQU\n" S>> TXDSTR
+"0000 EQU 0000 = " S>>	TXDSTR 0 >> 0 >> 			EQU TX16 "\n" S>> TXDSTR
+"0015 EQU 0015 = " S>>	TXDSTR 23 >> 23 >> 			EQU TX16 "\n" S>> TXDSTR
+"0000 EQU 0015 = " S>>	TXDSTR 0 >> 23 >> 			EQU TX16 "\n" S>> TXDSTR
+"0015 EQU 0000 = " S>>	TXDSTR 23 >> 0 >> 			EQU TX16 "\n" S>> TXDSTR
+
+; Test NEQU
+"Test NEQU\n" S>> TXDSTR
+"0000 NEQU 0000 = " S>>	TXDSTR 0 >> 0 >> 			NEQU TX16 "\n" S>> TXDSTR
+"0015 NEQU 0015 = " S>>	TXDSTR 23 >> 23 >> 			NEQU TX16 "\n" S>> TXDSTR
+"0000 NEQU 0015 = " S>>	TXDSTR 0 >> 23 >> 			NEQU TX16 "\n" S>> TXDSTR
+"0015 NEQU 0000 = " S>>	TXDSTR 23 >> 0 >> 			NEQU TX16 "\n" S>> TXDSTR
+
+; Test LT
+"Test LT\n" S>> TXDSTR
+"0000 LT 0000 = " S>>	TXDSTR 0 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0015 LT 0015 = " S>>	TXDSTR 23 >> 23 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT 0015 = " S>>	TXDSTR 0 >> 23 >> 			LT TX16 "\n" S>> TXDSTR
+"0015 LT 0000 = " S>>	TXDSTR 23 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT 0001 = " S>>	TXDSTR 0 >> 1 >> 			LT TX16 "\n" S>> TXDSTR
+"0001 LT 0000 = " S>>	TXDSTR 1 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT 0100 = " S>>	TXDSTR 0 >> 256 >> 			LT TX16 "\n" S>> TXDSTR
+"0100 LT 0000 = " S>>	TXDSTR 256 >> 0 >> 			LT TX16 "\n" S>> TXDSTR
+"0000 LT FFFF = " S>>	TXDSTR 0 >> 65535 >>		LT TX16 "\n" S>> TXDSTR
+"FFFF LT 0000 = " S>>	TXDSTR 65535 >> 0 >> 		LT TX16 "\n" S>> TXDSTR
+"FFFE LT FFFF = " S>>	TXDSTR 65534 >> 65535 >>	LT TX16 "\n" S>> TXDSTR
+"FFFF LT FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	LT TX16 "\n" S>> TXDSTR
+
+; Test GT
+"Test GT\n" S>> TXDSTR
+"0000 GT 0000 = " S>>	TXDSTR 0 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0015 GT 0015 = " S>>	TXDSTR 23 >> 23 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT 0015 = " S>>	TXDSTR 0 >> 23 >> 			GT TX16 "\n" S>> TXDSTR
+"0015 GT 0000 = " S>>	TXDSTR 23 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT 0001 = " S>>	TXDSTR 0 >> 1 >> 			GT TX16 "\n" S>> TXDSTR
+"0001 GT 0000 = " S>>	TXDSTR 1 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT 0100 = " S>>	TXDSTR 0 >> 256 >> 			GT TX16 "\n" S>> TXDSTR
+"0100 GT 0000 = " S>>	TXDSTR 256 >> 0 >> 			GT TX16 "\n" S>> TXDSTR
+"0000 GT FFFF = " S>>	TXDSTR 0 >> 65535 >>		GT TX16 "\n" S>> TXDSTR
+"FFFF GT 0000 = " S>>	TXDSTR 65535 >> 0 >> 		GT TX16 "\n" S>> TXDSTR
+"FFFE GT FFFF = " S>>	TXDSTR 65534 >> 65535 >>	GT TX16 "\n" S>> TXDSTR
+"FFFF GT FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	GT TX16 "\n" S>> TXDSTR
+
+; Test LE
+"Test LE\n" S>> TXDSTR
+"0000 LE 0000 = " S>>	TXDSTR 0 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0015 LE 0015 = " S>>	TXDSTR 23 >> 23 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE 0015 = " S>>	TXDSTR 0 >> 23 >> 			LE TX16 "\n" S>> TXDSTR
+"0015 LE 0000 = " S>>	TXDSTR 23 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE 0001 = " S>>	TXDSTR 0 >> 1 >> 			LE TX16 "\n" S>> TXDSTR
+"0001 LE 0000 = " S>>	TXDSTR 1 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE 0100 = " S>>	TXDSTR 0 >> 256 >> 			LE TX16 "\n" S>> TXDSTR
+"0100 LE 0000 = " S>>	TXDSTR 256 >> 0 >> 			LE TX16 "\n" S>> TXDSTR
+"0000 LE FFFF = " S>>	TXDSTR 0 >> 65535 >>		LE TX16 "\n" S>> TXDSTR
+"FFFF LE 0000 = " S>>	TXDSTR 65535 >> 0 >> 		LE TX16 "\n" S>> TXDSTR
+"FFFE LE FFFF = " S>>	TXDSTR 65534 >> 65535 >>	LE TX16 "\n" S>> TXDSTR
+"FFFF LE FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	LE TX16 "\n" S>> TXDSTR
+
+; Test GE
+"Test GE\n" S>> TXDSTR
+"0000 GE 0000 = " S>>	TXDSTR 0 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0015 GE 0015 = " S>>	TXDSTR 23 >> 23 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE 0015 = " S>>	TXDSTR 0 >> 23 >> 			GE TX16 "\n" S>> TXDSTR
+"0015 GE 0000 = " S>>	TXDSTR 23 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE 0001 = " S>>	TXDSTR 0 >> 1 >> 			GE TX16 "\n" S>> TXDSTR
+"0001 GE 0000 = " S>>	TXDSTR 1 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE 0100 = " S>>	TXDSTR 0 >> 256 >> 			GE TX16 "\n" S>> TXDSTR
+"0100 GE 0000 = " S>>	TXDSTR 256 >> 0 >> 			GE TX16 "\n" S>> TXDSTR
+"0000 GE FFFF = " S>>	TXDSTR 0 >> 65535 >>		GE TX16 "\n" S>> TXDSTR
+"FFFF GE 0000 = " S>>	TXDSTR 65535 >> 0 >> 		GE TX16 "\n" S>> TXDSTR
+"FFFE GE FFFF = " S>>	TXDSTR 65534 >> 65535 >>	GE TX16 "\n" S>> TXDSTR
+"FFFF GE FFFE = " S>>	TXDSTR 65535 >> 65534 >> 	GE TX16 "\n" S>> TXDSTR
+
+; Test ZEQU
+"Test ZEQU\n" S>> TXDSTR
+"ZEQU 0000 = " S>> 		TXDSTR 0 >>		ZEQU TX16 "\n" S>> TXDSTR
+"ZEQU 0001 = " S>> 		TXDSTR 1 >>		ZEQU TX16 "\n" S>> TXDSTR
+"ZEQU 00FF = " S>> 		TXDSTR 255 >>	ZEQU TX16 "\n" S>> TXDSTR
+"ZEQU FF00 = " S>> 		TXDSTR 65280 >>	ZEQU TX16 "\n" S>> TXDSTR
+"ZEQU FFFF = " S>> 		TXDSTR 65535 >>	ZEQU TX16 "\n" S>> TXDSTR
+
+; Test BRA
+"Test BRA\n" S>> TXDSTR
+11 >> BRA
+"FAILED" S>> TXDSTR ; strlen + trailing 0 + length byte + data opcode = 9 bytes.
+"Branch Taken\n" S>> TXDSTR
+
+; Test ZBRA
+"Test ZBRA\n" S>> TXDSTR
+0 >> 11 >> ZBRA
+"FAILED" S>> TXDSTR ; strlen + trailing 0 + length byte + data opcode + TXDSTR = 11 bytes.
+"ZBranch on 0\n" S>> TXDSTR
+1 >> 11 >> ZBRA
+"--OK--" S>> TXDSTR ; strlen + trailing 0 + length byte + data opcode  TXDSTR = 11 bytes.
+"ZBranch on 1\n" S>> TXDSTR
+
+
+; Test ENTER   n       -               ( set up stack frame for n bytes of locals)
+; Test LEAVE           -               ( unwind stack frame )
+"Test ENTER & LEAVE\n" S>> TXDSTR
+"Initial state\n" S>> TXDSTR DUMP
+6 >> ENTER
+"After 6 ENTER\n" S>> TXDSTR DUMP
+LEAVE
+"After LEAVE\n" S>> TXDSTR DUMP
+
+
+; Test TOR/FROMR early as we need them for NRET
+; Test TOR     n    -                  ( tos to return stack )
+; Test FROMR        - n                ( return stack to tos )
+"Test TOR & FROMR\n" S>> TXDSTR
+"Initial State\n" S>> TXDSTR DUMP
+4353 >> TOR
+"After 1101 TOR \n" S>> TXDSTR DUMP
+FROMR
+"After FROMR\n" S>> TXDSTR DUMP
+DROP
+
+
+
+; Test CALL    addr    -               ( PUSH(RSP) IP, IP = addr)
+"Test CALL\n" S>> TXDSTR
+30720 >> CALL
+"Stack on return:\n" S>> TXDSTR DUMP
+
+; Test RET             -               ( POP(RSP) -> IP )
+; Tested as part of CALL
+
+; Test NRET    n       -               ( POP(RSP)->IP, RSP-=N )
+"Test NRET\n" S>> TXDSTR
+"Initial State\n" S>> TXDSTR DUMP
+0 >> TOR
+4353 >> TOR
+8706 >> TOR
+"Pushed 3 parameters\n" S>> TXDSTR DUMP
+30720 256 + >> CALL
+"Stack on return:\n" S>> TXDSTR DUMP
+
+
+; Test CCALL   addr    -               ( call C fn at addr)
+"Test CCALL\n" S>> TXDSTR
+16896 >> CCALL	;	call to 4200h
+
+; Stack manipulation - use 0, 1101h, 2202h, 3303h as values
+; Test DROP
+"Test DROP\n" S>> TXDSTR
+0 >> 4353 >> 8706 >> DROP DUMP
+DROP DROP
+
+; Test DUP 
+"Test DUP\n" S>> TXDSTR
+0 >> 4353 >> 8706 >> DUP DUMP
+DROP DROP DROP DROP
+
+; Test OVER
+"Test OVER\n" S>> TXDSTR
+0 >> 4353 >> 8706 >> OVER DUMP
+DROP DROP DROP DROP
+
+; Test  PICK
+"Test (3) PICK\n" S>> TXDSTR
+0 >> 4353 >> 8706 >> 13059 >> 3 >> PICK DUMP
+DROP DROP DROP DROP	DROP
+
+; Test SWAP
+"Test SWAP\n" S>> TXDSTR
+0 >> 4353 >> 8706 >> SWAP DUMP
+DROP DROP DROP
+
+; Test REPL
+"Test REPL\n" S>> TXDSTR
+0 >> 4353 >> 8706 >> REPL DUMP
+DROP DROP 
+
+; Test ST      v,a   -                 ( [a] = v)
+; Test LD      a     -  v              ( v = [a] )
+"Test ST & LD\n" S>> TXDSTR
+4353 >> 1024 >> ST
+"State after ST\n" S>> TXDSTR DUMP	; check stack empty
+"Value from LD " S>> TXDSTR 1024 >> LD TX16 "\n" S>> TXDSTR
+"State after LD\n" S>> TXDSTR DUMP
+
+; Test CST     c,a   -                 ( character store)
+; Test CLD     a     -  c              ( character fetch)
+"Test CST & CLD\n" S>> TXDSTR
+"Byte values from write to 1024/1025\n" S>> TXDSTR
+1024 >> CLD TX16 "\n" S>> TXDSTR
+1025 >> CLD TX16 "\n" S>> TXDSTR
+2 >> 1026 >> CST
+"State after CST\n" S>> TXDSTR DUMP
+"Value read by CLD (2): " S>> TXDSTR 1026 >> CLD TX16 "\n" S>> TXDSTR
+"State after CLD\n" S>> TXDSTR DUMP
+
+; Test DATA    n     -  a              ( skip n bytes,& push original IP)
+; Tested as part of S>> TXDSTR pair
+
+; Test FPADD   n    - FP+n             ( push FP+n )
+"Test FPADD\n" S>> TXDSTR
+4 >> ENTER	; set up non-zero FP to make sure addition works (4 arbitrary)
+"State before FPADD\n" S>> TXDSTR DUMP
+"6 FPADD: " S>> TXDSTR 6 >> FPADD TX16 "\n" S>> TXDSTR
+"State after FPADD\n" S>> TXDSTR DUMP
+LEAVE
+
+; Setup stack frame for testing FP operands
+0 >> TOR		;0000
+4353 >> TOR		;1101
+8706 >> TOR		;2202
+13059 >> TOR 	;3303
+6 >> ENTER		; setup stack frame with 6 bytes of local variables
+; Stack frame should look like:
+;RSP -> 	FP+6
+;			FP+4
+;			FP+2
+;FP ->		OLD-FP
+;			3303
+;			2202
+;			1101
+;			0000
+
+"Stack frame for testing FP words\n" S>> TXDSTR
+DUMP
+
+; Test FPLD    n    - val              ( return stack[FP+n] ->tos )
+"Test FPLD\n" S>> TXDSTR
+"[FP-2] (3303) = " S>> TXDSTR -2 >> FPLD TX16 "\n" S>> TXDSTR
+"[FP-4] (2202) = " S>> TXDSTR -4 >> FPLD TX16 "\n" S>> TXDSTR
+"[FP-6] (1101) = " S>> TXDSTR -6 >> FPLD TX16 "\n" S>> TXDSTR
+"[FP-8] (0000) = " S>> TXDSTR -8 >> FPLD TX16 "\n" S>> TXDSTR
+
+; Test FPST    v,n  -                  ( 2tos -> return stack[FP+n] )
+"Test FPST\n" S>> TXDSTR
+21765 >> 2 >> FPST	 ; 5505 as local variable
+"[FP+2] (5505) = " S>> TXDSTR 2 >> FPLD TX16 "\n" S>> TXDSTR
+
+DUMP
+
+; Test FPCLD   n    - c                ( return stack[FP+n] -> tos (char load ))
+"Test FPCLD\n" S>> TXDSTR
+"Byte[FP+2] (05) = " S>> TXDSTR 2 >> FPCLD TX16 "\n" S>> TXDSTR
+"Byte[FP+3] (55) = " S>> TXDSTR 3 >> FPCLD TX16 "\n" S>> TXDSTR
+
+DUMP
+
+; Test FPCST   c,n  -                  ( 2tos -> (char) return stack[FP+n] )
+"Test FPCST\n" S>> TXDSTR
+6 >> 2 >> FPCST
+"Byte[FP+2] (06) = " S>> TXDSTR 2 >> FPCLD TX16 "\n" S>> TXDSTR
+"Byte[FP+3] (55) = " S>> TXDSTR 3 >> FPCLD TX16 "\n" S>> TXDSTR
+
+DUMP
+; Test HALT            -               ( halt execution )
+; Test FAULT   n       -               ( raise fault n & halt execution )
+; Test BND     v,l,u - v               ( check l<=v<=u (integer), fault if not )
+
+; Test ALLOC   n     - a               ( allocates n bytes on RS, returns its addr )
+"Test ALLOC\n" S>> TXDSTR
+DUMP
+8 >> ALLOC
+"Alloc returns " S>> TXDSTR DUP TX16 "\n" S>> TXDSTR
+DUMP
+DUP
+-8 >> FPADD ; address of parameters (0, 1101..3303)
+SWAP 8 >>
+DUMP
+
+; Test MOV     s,d,n -                 ( move n bytes from source to dest )
+"Test MOV\n" S>> TXDSTR
+MOV
+
+; TOS should be destination address
+"Values at " S>> TXDSTR DUP TX16 " are:\n" S>> TXDSTR
+DUP LD TX16 "\n" S>> TXDSTR
+2 >> ADD DUP LD TX16 "\n" S>> TXDSTR
+2 >> ADD DUP LD TX16 "\n" S>> TXDSTR
+2 >> ADD     LD TX16 "\n" S>> TXDSTR
+
+
+"VM State at end of tests\n" S>> TXDSTR
+DUMP
+
+"END OF TESTS\n" S>> TXDSTR 
+
+HALT
+
+; Subroutines for testing CALL etc.
+30720 %org ; 7800h
+"Called routine, Stack: \n" S>> TXDSTR DUMP
+RET
+
+; For testing NRET - should be called with 3 parameters (6 bytes) pushed onto stack
+30720 256 + %org ; 7900h
+"Called routine, Stack: \n" S>> TXDSTR DUMP
+6 >> NRET ; 6 bytes 
+
+
+; Send VM code + test harness
+%sendhex
+%clearhex
+1000 %pause
+
+; Run tests
+"J4100" %sendstring

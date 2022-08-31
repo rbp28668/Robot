@@ -1,0 +1,17 @@
+;Test harness for testing the Virtual Processor for the Robot
+
+;Make sure we're talking to the robot
+%connect
+
+%clearhex  ; in case of junk left over from previous script run
+
+;Load the pascal image.
+"f:\\projects\\robot\\pascal\\test\\pascal.obj" %loadhex
+
+; Send VM code + test harness
+%sendhex
+%clearhex
+1000 %pause
+
+; Run tests - address must match pboot in ROBOT.LST
+"J1A95" %sendstring
